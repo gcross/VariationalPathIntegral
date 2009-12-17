@@ -1,0 +1,27 @@
+-- @+leo-ver=4-thin
+-- @+node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal
+-- @@language Haskell
+Name:           VariationalPathIntegral
+Version:        0.1
+Cabal-Version:  >= 1.2
+License:        BSD3
+License-File:   LICENSE
+Author:         Gregory Crosswhite
+Copyright:      (c) 2009 Gregory Crosswhite
+Maintainer:     gcross@phys.washington.edu
+Stability:      experimental
+Homepage:       http://github.com/gcross/VariationalPathIntegral
+Category:       Physics
+Synopsis:       Variational Monte Carlo
+Build-Type:     Custom
+
+Library
+    Build-Depends:  base == 4.1.*,
+                    filepath == 1.*,
+                    Blueprint >= 0.2,
+                    InfixApplicative == 1.*,
+                    storablevector == 0.2.*
+
+    Extra-Libraries: gfortran
+-- @-node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal
+-- @-leo
