@@ -77,14 +77,11 @@ main =
         configureAdditional
         compileAdditional
         additional_options
-        [("","sources/fortran")
-        ,("","sources/c")
-        ,("","sources/haskell")
-        ]
+        ("","sources")
         (Just
-           ([("","tests")]
-           ,[("vpi.path","o")
-            ,("vpic.path","o")]
+           (("","tests")
+           ,[("vpic.path","o")
+            ,("vpif.path","o")]
            ,["HUnit == 1.*"
             ,"QuickCheck == 2.*"
             ,"test-framework == 0.2.*"

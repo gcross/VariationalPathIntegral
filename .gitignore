@@ -1,1 +1,7 @@
 build
+Setup
+*.o
+*.hi
+test
+*.cfg
+#*

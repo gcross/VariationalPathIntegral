@@ -20,7 +20,8 @@ Library
                     filepath == 1.*,
                     Blueprint >= 0.2,
                     InfixApplicative == 1.*,
-                    storablevector == 0.2.*
+                    Vec == 0.9.*,
+                    NDArray >= 0.1
 
     Extra-Libraries: gfortran
 -- @-node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal

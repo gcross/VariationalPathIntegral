@@ -10,7 +10,7 @@ contains
 !@+others
 !@+node:gcross.20091216150502.1730:compute_separations
 subroutine compute_separations( &
-    number_of_dimensions, number_of_particles, number_of_slices, &
+    number_of_slices, number_of_particles, number_of_dimensions, &
     path_positions, &
     path_separations &
 )
@@ -38,7 +38,7 @@ end subroutine
 !@-node:gcross.20091216150502.1730:compute_separations
 !@+node:gcross.20091216150502.1727:create_initial_path
 subroutine create_initial_path( &
-    number_of_dimensions, number_of_particles, number_of_slices, &
+    number_of_slices, number_of_particles, number_of_dimensions, &
     lower_bounds, upper_bounds, &
     path_positions, path_separations &
 )
