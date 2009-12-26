@@ -63,7 +63,7 @@ subroutine create_initial_path( &
     end do
 
     call compute_separations( &
-        number_of_dimensions, number_of_particles, number_of_slices, &
+        number_of_slices, number_of_particles, number_of_dimensions, &
         path_positions, &
         path_separations &
     )

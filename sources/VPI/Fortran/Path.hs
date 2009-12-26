@@ -15,7 +15,16 @@ module VPI.Fortran.Path where
 import Control.Arrow
 
 import Data.NDArray
-import Data.Vec (Vec3,(:.)(..))
+import Data.Vec ((:.)(..)
+                ,Vec2
+                ,Vec3
+                ,Vec4
+                ,Vec5
+                ,Vec6
+                ,Vec7
+                ,Vec8
+                ,Vec9
+                )
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -36,13 +45,13 @@ foreign import ccall unsafe "vpi__path__create_initial_path" vpi__path__create_i
 
 create_initial_path ::
     Int -> Int -> [(Double,Double)] ->
-    IO (NDArray (Vec3 Int) Double,NDArray (Vec3 Int) Double)
+    IO (Array3D Double,Array3D Double)
 create_initial_path number_of_slices number_of_particles bounds =
     fmap (second fst) $
     withArray lower_bounds $ \p_lower_bounds ->
     withArray upper_bounds $ \p_upper_bounds ->
-    withNewNDArray (number_of_slices :. number_of_particles :. number_of_dimensions :. ()) $ \p_positions ->
-    withNewNDArray (number_of_slices :. number_of_particles :. number_of_particles :. ()) $ \p_separations ->
+    withNewNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) $ \p_positions ->
+    withNewNDArray (shape3 number_of_slices number_of_particles number_of_particles) $ \p_separations ->
         vpi__path__create_initial_path
             number_of_slices
             number_of_particles

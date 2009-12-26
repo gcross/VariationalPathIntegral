@@ -11,8 +11,13 @@
 -- @+node:gcross.20091216150502.2171:<< Import needed modules >>
 import Control.Applicative.Infix
 
+
+import Data.NDArray (All(..),Index(..))
 import qualified Data.NDArray as N
 import Data.Vec((:.)(..))
+
+
+import Debug.Trace
 
 import Test.HUnit
 import Test.Framework
@@ -27,6 +32,16 @@ import VPI.Path
 -- @nl
 
 -- @+others
+-- @+node:gcross.20091225065853.1430:Functions
+-- @+node:gcross.20091225065853.1431:echo
+echo x = trace (show x) x
+-- @-node:gcross.20091225065853.1431:echo
+-- @+node:gcross.20091225065853.1432:skipList
+skipList :: Int -> [a] -> [a]
+skipList _ [] = []
+skipList n (x:xs) = x:skipList n (drop (n-1) xs)
+-- @-node:gcross.20091225065853.1432:skipList
+-- @-node:gcross.20091225065853.1430:Functions
 -- @+node:gcross.20091216150502.2182:Generators
 -- @+node:gcross.20091216150502.2183:UnderTenInt
 newtype UnderTenInt = UTI Int deriving (Show,Eq)
@@ -51,7 +66,7 @@ main = defaultMain
         -- @+node:gcross.20091216150502.2174:createInitialPath
         [testGroup "createInitialPath"
             -- @    @+others
-            -- @+node:gcross.20091216150502.2175:within specified range
+            -- @+node:gcross.20091216150502.2175:within specified range (1D)
             [testProperty "within specified range (1D)" $
                 \(UTI number_of_slices) (UTI number_of_particles) bound_1 bound_2 ->
                 let lower_bound = bound_1 `min` bound_2
@@ -63,8 +78,8 @@ main = defaultMain
                         [(lower_bound,upper_bound)]
                     >>=
                     return . N.all ( (>= lower_bound) <^(&&)^> (<= upper_bound) ) . pathParticlePositions
-            -- @-node:gcross.20091216150502.2175:within specified range
-            -- @+node:gcross.20091220132355.1796:within specified range
+            -- @-node:gcross.20091216150502.2175:within specified range (1D)
+            -- @+node:gcross.20091220132355.1796:within specified range (2D)
             ,testProperty "within specified range (2D)" $
                 \(UTI number_of_slices) (UTI number_of_particles) bound_x_1 bound_x_2 bound_y_1 bound_y_2 ->
                 let lower_bound_x = bound_x_1 `min` bound_x_2
@@ -83,17 +98,17 @@ main = defaultMain
                       (
                         N.all ( (>= lower_bound_x) <^(&&)^> (<= upper_bound_x) )
                         .
-                        N.cut (() :. () :. (0::Int) :. ())
+                        N.cut (All :. All :. Index 0 :. ())
                         .
                         pathParticlePositions
                       <^(&&)^>
                         N.all ( (>= lower_bound_y) <^(&&)^> (<= upper_bound_y) )
                         .
-                        N.cut (() :. () :. (1::Int) :. ())
+                        N.cut (All :. All :. Index 1 :. ())
                         .
                         pathParticlePositions
                       )
-            -- @-node:gcross.20091220132355.1796:within specified range
+            -- @-node:gcross.20091220132355.1796:within specified range (2D)
             -- @-others
             ]
         -- @-node:gcross.20091216150502.2174:createInitialPath

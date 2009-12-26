@@ -27,7 +27,6 @@
 <v t="gcross.20091217090302.1304"><vh>@path Fortran</vh>
 <v t="gcross.20091217090302.1306"><vh>@thin Path.hs</vh></v>
 </v>
-<v t="gcross.20091216150502.2164"><vh>@thin Miscellaneous.hs</vh></v>
 <v t="gcross.20091211140304.1694"><vh>@thin Path.hs</vh></v>
 </v>
 </v>
