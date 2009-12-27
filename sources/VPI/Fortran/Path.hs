@@ -28,15 +28,40 @@ import Data.Vec ((:.)(..)
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
+
+import System.IO.Unsafe
 -- @-node:gcross.20091220132355.1794:<< Import needed modules >>
 -- @nl
 
 -- @+others
--- @+node:gcross.20091220132355.1792:create_initial_path
-foreign import ccall unsafe "vpi__path__create_initial_path" vpi__path__create_initial_path :: 
-    Int -> -- number of dimensions
-    Int -> -- number of particles
+-- @+node:gcross.20091220132355.1792:compute_separations
+foreign import ccall unsafe "vpi__path__compute_separations" vpi__path__compute_separations :: 
     Int -> -- number of slices
+    Int -> -- number of particles
+    Int -> -- number of dimensions
+    Ptr (Double) -> -- particle positions
+    Ptr (Double) -> -- particle slices
+    IO ()
+
+compute_separations :: Array3D Double -> Array3D Double
+compute_separations particle_positions =
+    fst . unsafePerformIO $
+    withNDArray particle_positions $ \p_positions ->
+    withNewNDArray (shape3 number_of_slices number_of_particles number_of_particles) $ \p_separations ->
+        vpi__path__compute_separations
+            number_of_slices
+            number_of_particles
+            number_of_dimensions
+            p_positions
+            p_separations
+  where
+    number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
+-- @-node:gcross.20091220132355.1792:compute_separations
+-- @+node:gcross.20091226065853.1634:create_initial_path
+foreign import ccall unsafe "vpi__path__create_initial_path" vpi__path__create_initial_path :: 
+    Int -> -- number of slices
+    Int -> -- number of particles
+    Int -> -- number of dimensions
     Ptr (Double) -> -- lower bounds
     Ptr (Double) -> -- upper bounds
     Ptr (Double) -> -- particle positions
@@ -63,7 +88,7 @@ create_initial_path number_of_slices number_of_particles bounds =
   where
     number_of_dimensions = length bounds
     (lower_bounds,upper_bounds) = unzip bounds
--- @-node:gcross.20091220132355.1792:create_initial_path
+-- @-node:gcross.20091226065853.1634:create_initial_path
 -- @-others
 -- @-node:gcross.20091217090302.1306:@thin Path.hs
 -- @-leo

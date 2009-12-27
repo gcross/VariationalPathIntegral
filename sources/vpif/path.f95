@@ -21,7 +21,8 @@ subroutine compute_separations( &
     double precision, intent(out) :: &
         path_separations(number_of_particles, number_of_particles, number_of_slices)
 
-    integer :: i, j1, j2, d
+    integer :: i, j1, j2
+    double precision :: d
 
     do i = 1, number_of_slices
         do j1 = 1, number_of_particles
