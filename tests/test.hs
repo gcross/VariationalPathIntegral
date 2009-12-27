@@ -28,6 +28,7 @@ import Test.QuickCheck
 import System.IO.Unsafe
 
 import VPI.Fortran.Path
+import VPI.Fortran.Path.Moves
 import VPI.Path
 -- @-node:gcross.20091216150502.2171:<< Import needed modules >>
 -- @nl
@@ -96,11 +97,11 @@ main = defaultMain
     -- @    << Tests >>
     -- @+node:gcross.20091216150502.2172:<< Tests >>
     -- @+others
-    -- @+node:gcross.20091226065853.1624:VPI.Fortran
-    [testGroup "VMPS.Fortran"
+    -- @+node:gcross.20091226065853.1624:Fortran wrappers
+    [testGroup "Fortran wrappers"
         -- @    @+others
-        -- @+node:gcross.20091226065853.1629:VMPS.Fortran.Path
-        [testGroup "VMPS.Fortran.Path"
+        -- @+node:gcross.20091226065853.1629:vpif.path
+        [testGroup "vpif.path"
             -- @    @+others
             -- @+node:gcross.20091226065853.2237:compute_separations
             [testGroup "compute_separations"
@@ -124,10 +125,59 @@ main = defaultMain
             -- @-node:gcross.20091226065853.2237:compute_separations
             -- @-others
             ]
-        -- @-node:gcross.20091226065853.1629:VMPS.Fortran.Path
+        -- @-node:gcross.20091226065853.1629:vpif.path
+        -- @+node:gcross.20091227115154.1331:vpif.path.moves
+        ,testGroup "vpif.path.moves"
+            -- @    @+others
+            -- @+node:gcross.20091227115154.1334:rigid
+            [testGroup "rigid"
+                -- @    @+others
+                -- @+node:gcross.20091227115154.1333:only selected particle is moved
+                [testProperty "only selected particle is moved" $ do
+                    number_of_slices <- choose (1,10)
+                    number_of_particles <- choose (2,10)
+                    number_of_dimensions <- choose (1,10)
+                    particle_number <- choose (1,number_of_particles)
+                    maximum_shift <- fmap ((+1e-10).abs) arbitrary
+                    old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
+                    let new_particle_positions = rigid particle_number maximum_shift old_particle_positions
+                    return $
+                        and [ new_particle_positions ! i3 i j k == old_particle_positions ! i3 i j k
+                        | i <- [0..number_of_slices-1]
+                        , j <- [0..number_of_particles-1]
+                        , j /= (particle_number-1)
+                        , k <- [0..number_of_dimensions-1]
+                        ]
+                        &&
+                        and [ new_particle_positions ! i3 i (particle_number-1) k /= old_particle_positions ! i3 i (particle_number-1) k
+                        | i <- [0..number_of_slices-1]
+                        , k <- [0..number_of_dimensions-1]
+                        ]
+                -- @-node:gcross.20091227115154.1333:only selected particle is moved
+                -- @+node:gcross.20091227115154.1336:moves stay within range
+                ,testProperty "only selected particle is moved" $ do
+                    number_of_slices <- choose (1,10)
+                    let number_of_particles = 1
+                        particle_number = 1
+                    number_of_dimensions <- choose (1,10)
+                    maximum_shift <- fmap abs arbitrary
+                    old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
+                    let new_particle_positions = rigid particle_number maximum_shift old_particle_positions
+                    return $
+                        and [ abs (new_particle_positions ! i3 i 0 k - old_particle_positions ! i3 i 0 k) <= 2*maximum_shift
+                        | i <- [0..number_of_slices-1]
+                        , k <- [0..number_of_dimensions-1]
+                        ]
+                -- @-node:gcross.20091227115154.1336:moves stay within range
+                -- @-others
+                ]
+            -- @-node:gcross.20091227115154.1334:rigid
+            -- @-others
+            ]
+        -- @-node:gcross.20091227115154.1331:vpif.path.moves
         -- @-others
         ]
-    -- @-node:gcross.20091226065853.1624:VPI.Fortran
+    -- @-node:gcross.20091226065853.1624:Fortran wrappers
     -- @+node:gcross.20091216150502.2173:VPI.Path
     ,testGroup "VMPS.Path"
         -- @    @+others

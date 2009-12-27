@@ -81,7 +81,10 @@ main =
         (Just
            (("","tests")
            ,[("vpic.path","o")
-            ,("vpif.path","o")]
+            ,("vpif.path","o")
+            ,("vpic.path.moves","o")
+            ,("vpif.path.moves","o")
+            ]
            ,["HUnit == 1.*"
             ,"QuickCheck == 2.*"
             ,"test-framework == 0.2.*"
