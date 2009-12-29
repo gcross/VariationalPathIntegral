@@ -4,6 +4,8 @@
 
 -- @<< Language extensions >>
 -- @+node:gcross.20091216150502.2170:<< Language extensions >>
+{-# LANGUAGE ScopedTypeVariables #-}
+-- @nonl
 -- @-node:gcross.20091216150502.2170:<< Language extensions >>
 -- @nl
 
@@ -29,6 +31,7 @@ import System.IO.Unsafe
 
 import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
+import VPI.Fortran.Physics.HarmonicOscillator
 import VPI.Path
 -- @-node:gcross.20091216150502.2171:<< Import needed modules >>
 -- @nl
@@ -78,6 +81,10 @@ verifyCorrectSeparations particle_positions particle_separations =
   where
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
 -- @-node:gcross.20091226065853.1465:verifyCorrectSeparations
+-- @+node:gcross.20091227115154.1366:toSingleton/fromSingleton
+toSingleton x = [x]
+fromSingleton [x] = x
+-- @-node:gcross.20091227115154.1366:toSingleton/fromSingleton
 -- @-node:gcross.20091225065853.1430:Functions
 -- @+node:gcross.20091216150502.2182:Generators
 -- @+node:gcross.20091216150502.2183:UnderTenInt
@@ -175,6 +182,71 @@ main = defaultMain
             -- @-others
             ]
         -- @-node:gcross.20091227115154.1331:vpif.path.moves
+        -- @+node:gcross.20091227115154.1357:vpif.physics.harmonic_oscillator
+        ,testGroup "vpif.physics.harmonic_oscillator"
+            -- @    @+others
+            -- @+node:gcross.20091227115154.1358:compute_potential
+            [testGroup "compute_potential"
+                -- @    @+others
+                -- @+node:gcross.20091227115154.1359:correct monotonicity
+                [testProperty "correct monotonicity" $
+                    \(Positive (distance_1 :: Double)) (Positive (distance_2 :: Double)) (Positive (coefficient :: Double)) ->
+                        let potentialOf =
+                                (\[x] -> x)
+                                .
+                                toList
+                                .
+                                compute_potential (fromListWithShape (shape1 1) [coefficient])
+                                .
+                                fromListWithShape (shape3 1 1 1)
+                                .
+                                (:[])
+                        in potentialOf distance_1 < potentialOf (distance_1+distance_2)
+                -- @-node:gcross.20091227115154.1359:correct monotonicity
+                -- @+node:gcross.20091227115154.1362:correct value
+                ,testGroup "correct value"
+                    -- @    @+others
+                    -- @+node:gcross.20091227115154.1361:1 particle, 1D
+                    [testProperty "1 particle, 1D" $
+                        \(Positive (distance :: Double)) (Positive (coefficient :: Double)) ->
+                            let potentialOf =
+                                    fromSingleton
+                                    .
+                                    toList
+                                    .
+                                    compute_potential (fromList [coefficient])
+                                    .
+                                    fromListWithShape (shape3 1 1 1)
+                                    .
+                                    toSingleton
+                            in potentialOf distance == coefficient * distance**2 / 2
+                    -- @-node:gcross.20091227115154.1361:1 particle, 1D
+                    -- @+node:gcross.20091227115154.1364:1 particle, ND
+                    ,testProperty "1 particle, ND" $
+                        \(distances_and_coefficients :: [(Double,Double)]) ->
+                            let (distances,coefficients) = unzip distances_and_coefficients
+                            in  (== sum [distance**2 * coefficient / 2 | (distance,coefficient) <- distances_and_coefficients])
+                                .
+                                fromSingleton
+                                .
+                                toList
+                                .
+                                compute_potential (fromList coefficients)
+                                .
+                                fromListWithShape (shape3 1 1 (length distances))
+                                $
+                                distances
+                    -- @-node:gcross.20091227115154.1364:1 particle, ND
+                    -- @-others
+                    ]
+                -- @nonl
+                -- @-node:gcross.20091227115154.1362:correct value
+                -- @-others
+                ]
+            -- @-node:gcross.20091227115154.1358:compute_potential
+            -- @-others
+            ]
+        -- @-node:gcross.20091227115154.1357:vpif.physics.harmonic_oscillator
         -- @-others
         ]
     -- @-node:gcross.20091226065853.1624:Fortran wrappers

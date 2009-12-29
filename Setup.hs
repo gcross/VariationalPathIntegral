@@ -84,6 +84,8 @@ main =
             ,("vpif.path","o")
             ,("vpic.path.moves","o")
             ,("vpif.path.moves","o")
+            ,("vpic.physics.harmonic_oscillator","o")
+            ,("vpif.physics.harmonic_oscillator","o")
             ]
            ,["HUnit == 1.*"
             ,"QuickCheck == 2.*"
