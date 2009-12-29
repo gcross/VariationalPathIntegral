@@ -2,7 +2,7 @@
 !@+node:gcross.20091216150502.1725:@thin path.f95
 !@@language fortran90
 
-module vpi__path
+module vpif__path
   implicit none
 
 contains

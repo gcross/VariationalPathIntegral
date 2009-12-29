@@ -2,7 +2,7 @@
 !@+node:gcross.20091217090302.1298:@thin random.f95
 !@@language fortran90
 
-module vpi__random
+module vpif__random
   implicit none
 
 contains

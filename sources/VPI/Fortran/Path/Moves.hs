@@ -35,7 +35,7 @@ import System.IO.Unsafe
 
 -- @+others
 -- @+node:gcross.20091227115154.1329:rigid
-foreign import ccall unsafe "vpi__path__moves__rigid" vpi__path__moves__rigid :: 
+foreign import ccall unsafe "vpic__path__moves__rigid" vpi__path__moves__rigid :: 
     Int -> -- number of slices
     Int -> -- number of particles
     Int -> -- number of dimensions

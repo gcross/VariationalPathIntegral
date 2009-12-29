@@ -2,7 +2,7 @@
 !@+node:gcross.20091217090302.1302:@thin moves.f95
 !@@language fortran90
 
-module vpi__path__moves
+module vpif__path__moves
   implicit none
 
 contains

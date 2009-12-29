@@ -4,14 +4,14 @@
 
 //@+others
 //@+node:gcross.20091227115154.1320:rigid
-void vpi__path__moves__rigid(
+void vpic__path__moves__rigid(
     int number_of_slices, int number_of_particles, int number_of_dimensions,
     int particle_number_to_shift,
     double maximum_shift,
     double old_particle_positions[number_of_slices][number_of_particles][number_of_dimensions],
     double new_particle_positions[number_of_slices][number_of_particles][number_of_dimensions]
 ) {
-__vpi__path__moves_MOD_rigid(
+__vpif__path__moves_MOD_rigid(
     &number_of_slices, &number_of_particles, &number_of_dimensions,
     &particle_number_to_shift,
     &maximum_shift,

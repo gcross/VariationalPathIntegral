@@ -35,7 +35,7 @@ import System.IO.Unsafe
 
 -- @+others
 -- @+node:gcross.20091220132355.1792:compute_separations
-foreign import ccall unsafe "vpi__path__compute_separations" vpi__path__compute_separations :: 
+foreign import ccall unsafe "vpic__path__compute_separations" vpi__path__compute_separations :: 
     Int -> -- number of slices
     Int -> -- number of particles
     Int -> -- number of dimensions
@@ -58,7 +58,7 @@ compute_separations particle_positions =
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
 -- @-node:gcross.20091220132355.1792:compute_separations
 -- @+node:gcross.20091226065853.1634:create_initial_path
-foreign import ccall unsafe "vpi__path__create_initial_path" vpi__path__create_initial_path :: 
+foreign import ccall unsafe "vpic__path__create_initial_path" vpi__path__create_initial_path :: 
     Int -> -- number of slices
     Int -> -- number of particles
     Int -> -- number of dimensions
