@@ -3,6 +3,7 @@
 !@@language fortran90
 
 module vpif__path__moves
+  use vpif__random
   implicit none
 
 contains
@@ -38,6 +39,106 @@ subroutine rigid( &
 
 end subroutine
 !@-node:gcross.20091217090302.1303:rigid
+!@+node:gcross.20100103202029.1826:brownian_bridge
+subroutine brownian_bridge( &
+    number_of_slices, number_of_particles, number_of_dimensions, &
+    particle_number_to_move, &
+    start_slice, end_slice, &
+    hbar_over_2m, time_interval, &
+    old_particle_positions, &
+    new_particle_positions &
+)
+    integer, intent(in) :: &
+        number_of_slices, number_of_particles, number_of_dimensions, &
+        particle_number_to_move, &
+        start_slice, end_slice
+    double precision, intent(in) :: &
+        hbar_over_2m, time_interval, &
+old_particle_positions(number_of_dimensions,number_of_particles,number_of_slices)
+    double precision, intent(out) :: &
+new_particle_positions(number_of_dimensions,number_of_particles,number_of_slices)
+
+    integer :: &
+        start_slice_, end_slice_, &
+        current_random_number, &
+        slice_number, dimension_
+    double precision :: &
+        dt, &
+gaussian_random_numbers((end_slice-start_slice+2)*number_of_dimensions), &
+        t1, t2, &
+        a, b
+
+    dt = hbar_over_2m*time_interval*2.0d0
+
+    new_particle_positions(:,:particle_number_to_move-1,:) = &
+    old_particle_positions(:,:particle_number_to_move-1,:)
+
+    new_particle_positions(:,particle_number_to_move+1:,:) = &
+    old_particle_positions(:,particle_number_to_move+1:,:)
+
+    new_particle_positions(:end_slice_-1,particle_number_to_move,:) = &
+    old_particle_positions(:end_slice_-1,particle_number_to_move,:)
+
+    new_particle_positions(start_slice_+1:,particle_number_to_move,:) = &
+    old_particle_positions(start_slice_+1:,particle_number_to_move,:)
+
+    call sample_unit_normal_distribution(size(gaussian_random_numbers),gaussian_random_numbers)
+    current_random_number = 1
+
+    if (start_slice <= 1) then
+        call apply_endpoint_move(start_slice,sqrt(dt*(end_slice-1)))
+        start_slice_ = 2
+    end if
+    if (end_slice >= number_of_slices) then
+        call apply_endpoint_move(end_slice,sqrt(dt*(number_of_slices-start_slice)))
+        end_slice_ = number_of_slices-1
+    end if
+
+    do slice_number = start_slice_, end_slice_
+        t1 = dt
+        t2 = dt*(end_slice_+1-slice_number)
+        do dimension_ = 1, number_of_dimensions
+            a = new_particle_positions(slice_number-1,particle_number_to_move,dimension_)
+            b = new_particle_positions(end_slice_+1,particle_number_to_move,dimension_)
+            call apply_move( &
+                slice_number, &
+                dimension_, &
+                (t2*a  + t1*b)/(t1 + t2), &
+                sqrt(1./( 1./t1 + 1./t2)) &
+            )
+        end do
+    end do
+
+contains
+
+    subroutine apply_endpoint_move(slice_number, sigma)
+        integer, intent(in) :: slice_number
+        double precision, intent(in) :: sigma
+
+        integer :: dimension_
+
+        do dimension_ = 1, number_of_dimensions
+            call apply_move( &
+                slice_number, &
+                dimension_, &
+old_particle_positions(dimension_,particle_number_to_move,slice_number), &
+                sigma &
+            )
+        end do
+    end subroutine
+
+    subroutine apply_move(slice_number, dimension_, mean, sigma)
+        integer, intent(in) :: slice_number, dimension_
+        double precision, intent(in) :: mean, sigma
+
+new_particle_positions(dimension_,particle_number_to_move,slice_number) = &
+            gaussian_random_numbers(current_random_number)*sigma + mean
+        current_random_number = current_random_number + 1
+    end subroutine
+
+end subroutine
+
+!@-node:gcross.20100103202029.1826:brownian_bridge
 !@-others
 
 end module

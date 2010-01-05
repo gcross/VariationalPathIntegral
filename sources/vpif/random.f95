@@ -11,10 +11,10 @@ contains
 !@+node:gcross.20091217090302.1300:sample_unit_normal_distribution
 subroutine sample_unit_normal_distribution(size,sample)
     integer, intent(in) :: size
-    double precision, intent(out) :: sample
+    double precision, intent(out) :: sample(size)
     double precision :: fac, v(2)
 
-    integer:: i
+    integer :: i
 
     do i = 1, (size-1), 2
         call compute_fac()
@@ -39,9 +39,9 @@ subroutine sample_unit_normal_distribution(size,sample)
           rsq = dot_product(v,v)
         end do
         fac = sqrt(-2.0 * log(rsq) / rsq)
-    end function
+    end subroutine
 
-end subroutine ru_gasdev
+end subroutine
 !@-node:gcross.20091217090302.1300:sample_unit_normal_distribution
 !@-others
 
