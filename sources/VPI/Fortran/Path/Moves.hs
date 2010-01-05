@@ -7,6 +7,12 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 -- @-node:gcross.20091227115154.1327:<< Language extensions >>
 -- @nl
+-- @<< Link dependencies >>
+-- @+node:gcross.20100105133218.1363:<< Link dependencies >>
+{-# BLUEPRINT-LINK-DEPENDENCY vpic.path.moves o #-}
+{-# BLUEPRINT-LINK-DEPENDENCY vpif.path.moves o #-}
+-- @-node:gcross.20100105133218.1363:<< Link dependencies >>
+-- @nl
 
 module VPI.Fortran.Path.Moves where
 

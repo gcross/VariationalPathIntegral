@@ -7,6 +7,12 @@
 {-# LANGUAGE ForeignFunctionInterface #-}
 -- @-node:gcross.20091227115154.1354:<< Language extensions >>
 -- @nl
+-- @<< Link dependencies >>
+-- @+node:gcross.20100105133218.1365:<< Link dependencies >>
+{-# BLUEPRINT-LINK-DEPENDENCY vpic.physics.harmonic_oscillator o #-}
+{-# BLUEPRINT-LINK-DEPENDENCY vpif.physics.harmonic_oscillator o #-}
+-- @-node:gcross.20100105133218.1365:<< Link dependencies >>
+-- @nl
 
 module VPI.Fortran.Physics.HarmonicOscillator where
 
