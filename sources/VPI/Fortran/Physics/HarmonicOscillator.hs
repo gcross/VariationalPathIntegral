@@ -59,6 +59,31 @@ compute_potential coefficients particle_positions =
   where
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
 -- @-node:gcross.20091227115154.1356:compute_potential
+-- @+node:gcross.20100105133218.1367:compute_trial_derivatives
+foreign import ccall unsafe "vpic__physics__harmonic_oscillator__compute_trial_derivatives" vpi__physics__harmonic_oscillator__compute_trial_derivatives :: 
+    Int -> -- number of particles
+    Int -> -- number of dimensions
+    Ptr (Double) -> -- harmonic oscillator trial coefficients
+    Ptr (Double) -> -- particle positions
+    Ptr (Double) -> -- gradient_of_log_trial_fn
+    IO Double
+
+compute_trial_derivatives :: Array1D Double -> Array2D Double -> (Array2D Double,Double)
+compute_trial_derivatives coefficients particle_positions =
+    assert (shape1 number_of_dimensions == ndarrayShape coefficients) $
+    unsafePerformIO $
+    withNDArray coefficients $ \p_coefficients ->
+    withNDArray particle_positions $ \p_particle_positions ->
+    withNewNDArray (shape2 number_of_particles number_of_dimensions) $ \p_gradient_of_log_trial_fn ->
+        vpi__physics__harmonic_oscillator__compute_trial_derivatives
+            number_of_particles
+            number_of_dimensions
+            p_coefficients
+            p_particle_positions
+            p_gradient_of_log_trial_fn
+  where
+    number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
+-- @-node:gcross.20100105133218.1367:compute_trial_derivatives
 -- @-others
 -- @-node:gcross.20091227115154.1353:@thin HarmonicOscillator.hs
 -- @-leo

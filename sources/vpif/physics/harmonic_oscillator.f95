@@ -14,19 +14,18 @@ pure subroutine compute_potential( &
     potential_coefficients, &
     particle_positions, &
     potential &
-  )
-  integer, intent(in) :: number_of_slices, number_of_particles, number_of_dimensions
-  double precision, dimension( number_of_dimensions ), intent(in) :: potential_coefficients
-  double precision, dimension( number_of_dimensions, number_of_particles, number_of_slices ), intent(in) :: particle_positions
-  double precision, dimension( number_of_particles, number_of_slices ), intent(out)  :: potential
+)
+    integer, intent(in) :: number_of_slices, number_of_particles, number_of_dimensions
+    double precision, intent(in) :: &
+        potential_coefficients(number_of_dimensions), &
+        particle_positions(number_of_dimensions, number_of_particles, number_of_slices)
+    double precision, intent(out) :: &
+        potential(number_of_particles, number_of_slices)
 
-  integer :: i,j
+    integer :: i,j
 
-  do i = 1, number_of_slices
-  do j = 1, number_of_particles
-    potential(j,i) = dot_product(potential_coefficients,particle_positions(:,j,i)**2)/2d0
-  end do
-  end do
+    forall(i = 1:number_of_slices, j = 1:number_of_particles) &
+        potential(j,i) = dot_product(potential_coefficients,particle_positions(:,j,i)**2)/2d0
 
 end subroutine
 !@-node:gcross.20091212120817.1281:compute_potential
@@ -35,21 +34,22 @@ pure function compute_trial_weight( &
     number_of_particles, number_of_dimensions, &
     trial_coefficients, &
     particle_positions &
-  ) result ( weight )
-  integer, intent(in) :: number_of_particles, number_of_dimensions
-  double precision, dimension( number_of_dimensions, number_of_particles ), intent(in) :: particle_positions
-  double precision, dimension( number_of_dimensions ), intent(in) :: trial_coefficients
-  double precision  :: weight
+) result (weight)
+    integer, intent(in) :: number_of_particles, number_of_dimensions
+    double precision, intent(in) :: &
+        particle_positions(number_of_dimensions, number_of_particles), &
+        trial_coefficients(number_of_dimensions)
+    double precision :: weight
 
-  double precision, dimension( number_of_dimensions ) :: temp
-  integer :: i
+    double precision :: temp(number_of_dimensions)
+    integer :: i
 
-  temp = 0
-  do i = 1, number_of_particles
-    temp = temp + particle_positions(:,i)**2
-  end do
+    temp = 0
+    do i = 1, number_of_particles
+        temp = temp + particle_positions(:,i)**2
+    end do
 
-  weight = -dot_product(temp,trial_coefficients)/2d0
+    weight = -dot_product(temp,sqrt(trial_coefficients))/2d0
 
 end function
 !@-node:gcross.20091212120817.1279:compute_trial_weight
@@ -59,19 +59,25 @@ pure subroutine compute_trial_derivatives( &
     trial_coefficients, &
     particle_positions, &
     gradient_of_log_trial_fn, laplacian_of_log_trial_fn &
-  )
-  integer, intent(in) :: number_of_particles, number_of_dimensions
-  double precision, dimension( number_of_dimensions, number_of_particles ), intent(in) :: particle_positions
-  double precision, dimension( number_of_dimensions ), intent(in) :: trial_coefficients
-  double precision, dimension( number_of_dimensions, number_of_particles ), intent(out) :: gradient_of_log_trial_fn
-  double precision, intent(out) :: laplacian_of_log_trial_fn
+)
+    integer, intent(in) :: number_of_particles, number_of_dimensions
+    double precision, intent(in) :: &
+        particle_positions(number_of_dimensions, number_of_particles), &
+        trial_coefficients(number_of_dimensions)
+    double precision, intent(out) :: &
+        gradient_of_log_trial_fn(number_of_dimensions, number_of_particles), &
+        laplacian_of_log_trial_fn
 
-  integer :: i
+    integer :: i
+    double precision :: sqrt_trial_coefficients(number_of_dimensions)
 
-  forall (i = 1:number_of_particles) &
-    gradient_of_log_trial_fn(:,i) = -trial_coefficients(:)*particle_positions(:,i)
+    sqrt_trial_coefficients = sqrt(trial_coefficients)
 
-  laplacian_of_log_trial_fn = -sum(trial_coefficients)*number_of_particles
+    forall (i = 1:number_of_particles) &
+        gradient_of_log_trial_fn(:,i) = -sqrt_trial_coefficients(:)*particle_positions(:,i)
+
+    laplacian_of_log_trial_fn = -sum(trial_coefficients)*number_of_particles
+
 end subroutine
 !@-node:gcross.20091212120817.1280:compute_trial_derivatives
 !@-others

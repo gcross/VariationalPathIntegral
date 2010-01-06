@@ -28,17 +28,21 @@ double vpic__physics__harmonic_oscillator__compute_trial_weight(
 );}
 //@-node:gcross.20091227115154.1346:compute_trial_weight
 //@+node:gcross.20091227115154.1347:compute_trial_derivatives
-void vpic__physics__harmonic_oscillator__compute_trial_derivatives(
+double vpic__physics__harmonic_oscillator__compute_trial_derivatives(
     int number_of_particles, int number_of_dimensions,
     double trial_coefficients[number_of_dimensions],
     double particle_positions[number_of_particles][number_of_dimensions],
-    double gradient_of_log_trial_fn[number_of_particles][number_of_dimensions], double* laplacian_of_log_trial_fn
-){__vpif__physics__harmonic_oscillator_MOD_compute_trial_derivatives(
-    &number_of_particles, &number_of_dimensions,
-    trial_coefficients,
-    particle_positions,
-    gradient_of_log_trial_fn, laplacian_of_log_trial_fn
-);}
+    double gradient_of_log_trial_fn[number_of_particles][number_of_dimensions]
+){
+    double laplacian_of_log_trial_fn;
+    __vpif__physics__harmonic_oscillator_MOD_compute_trial_derivatives(
+        &number_of_particles, &number_of_dimensions,
+        trial_coefficients,
+        particle_positions,
+        gradient_of_log_trial_fn, &laplacian_of_log_trial_fn
+    );
+    return laplacian_of_log_trial_fn;
+}
 //@-node:gcross.20091227115154.1347:compute_trial_derivatives
 //@-others
 //@-node:gcross.20091227115154.1344:@thin harmonic_oscillator.c

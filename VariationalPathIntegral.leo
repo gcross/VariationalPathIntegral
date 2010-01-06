@@ -13,16 +13,8 @@
 <v t="gcross.20091212120817.1727"><vh>@thin VariationalPathIntegral.cabal</vh></v>
 <v t="gcross.20091216150502.1713"><vh>@thin Setup.hs</vh></v>
 <v t="gcross.20091212120817.1283"><vh>@path sources</vh>
-<v t="gcross.20091212120817.1286"><vh>@path vpic</vh>
-<v t="gcross.20091216150502.1728"><vh>@thin path.c</vh></v>
-<v t="gcross.20091227115154.1318"><vh>@path path</vh>
-<v t="gcross.20091227115154.1319"><vh>@thin moves.c</vh></v>
-</v>
-<v t="gcross.20091227115154.1343"><vh>@path physics</vh>
-<v t="gcross.20091227115154.1344"><vh>@thin harmonic_oscillator.c</vh></v>
-</v>
-</v>
 <v t="gcross.20091212120817.1282"><vh>@path vpif</vh>
+<v t="gcross.20100105133218.1370"><vh>@thin observables.f95</vh></v>
 <v t="gcross.20091216150502.1725"><vh>@thin path.f95</vh></v>
 <v t="gcross.20091217090302.1301"><vh>@path path</vh>
 <v t="gcross.20091217090302.1302"><vh>@thin moves.f95</vh></v>
@@ -32,8 +24,19 @@
 </v>
 <v t="gcross.20091217090302.1298"><vh>@thin random.f95</vh></v>
 </v>
+<v t="gcross.20091212120817.1286"><vh>@path vpic</vh>
+<v t="gcross.20100105133218.1368"><vh>@thin observables.c</vh></v>
+<v t="gcross.20091216150502.1728"><vh>@thin path.c</vh></v>
+<v t="gcross.20091227115154.1318"><vh>@path path</vh>
+<v t="gcross.20091227115154.1319"><vh>@thin moves.c</vh></v>
+</v>
+<v t="gcross.20091227115154.1343"><vh>@path physics</vh>
+<v t="gcross.20091227115154.1344"><vh>@thin harmonic_oscillator.c</vh></v>
+</v>
+</v>
 <v t="gcross.20091211140304.1693"><vh>@path VPI</vh>
 <v t="gcross.20091217090302.1304"><vh>@path Fortran</vh>
+<v t="gcross.20100105133218.1381"><vh>@thin Observables.hs</vh></v>
 <v t="gcross.20091217090302.1306"><vh>@thin Path.hs</vh></v>
 <v t="gcross.20091227115154.1316"><vh>@path Path</vh>
 <v t="gcross.20091227115154.1326"><vh>@thin Moves.hs</vh></v>
