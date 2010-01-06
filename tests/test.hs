@@ -273,6 +273,34 @@ main = defaultMain
                 -- @-others
                 ]
             -- @-node:gcross.20091227115154.1358:compute_potential
+            -- @+node:gcross.20100106124611.2023:compute_trial_weight
+            ,testGroup "compute_trial_weight"
+                -- @    @+others
+                -- @+node:gcross.20100106124611.2024:correct sign
+                [testProperty "correct sign" $
+                    \(distance :: Double) (Positive (coefficient :: Double)) ->
+                        let weightOf =
+                                compute_trial_weight (fromListWithShape (shape1 1) [coefficient])
+                                .
+                                fromListWithShape (shape2 1 1)
+                                .
+                                (:[])
+                        in weightOf distance < 1e-15
+                -- @-node:gcross.20100106124611.2024:correct sign
+                -- @+node:gcross.20100106124611.2031:correct monotonicity
+                ,testProperty "correct monotonicity" $
+                    \(Positive (distance_1 :: Double)) (Positive (distance_2 :: Double)) (Positive (coefficient :: Double)) ->
+                        let weightOf =
+                                compute_trial_weight (fromListWithShape (shape1 1) [coefficient])
+                                .
+                                fromListWithShape (shape2 1 1)
+                                .
+                                (:[])
+                        in weightOf distance_1 <= weightOf (distance_1+distance_2)
+                -- @-node:gcross.20100106124611.2031:correct monotonicity
+                -- @-others
+                ]
+            -- @-node:gcross.20100106124611.2023:compute_trial_weight
             -- @-others
             ]
         -- @-node:gcross.20091227115154.1357:vpif.physics.harmonic_oscillator

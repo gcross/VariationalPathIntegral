@@ -21,11 +21,16 @@ double vpic__physics__harmonic_oscillator__compute_trial_weight(
     int number_of_particles, int number_of_dimensions,
     double trial_coefficients[number_of_dimensions],
     double particle_positions[number_of_particles][number_of_dimensions]
-){return __vpif__physics__harmonic_oscillator_MOD_compute_trial_weight(
-    &number_of_particles, &number_of_dimensions,
-    trial_coefficients,
-    particle_positions
-);}
+){
+    double weight;
+    __vpif__physics__harmonic_oscillator_MOD_compute_trial_weight(
+        &number_of_particles, &number_of_dimensions,
+        trial_coefficients,
+        particle_positions,
+        &weight
+    );
+    return weight;
+}
 //@-node:gcross.20091227115154.1346:compute_trial_weight
 //@+node:gcross.20091227115154.1347:compute_trial_derivatives
 double vpic__physics__harmonic_oscillator__compute_trial_derivatives(

@@ -59,6 +59,27 @@ pure function compute_trial_weight( &
 
 end function
 !@-node:gcross.20091212120817.1279:compute_trial_weight
+!@+node:gcross.20100106124611.2033:compute_trial_weight_
+pure subroutine compute_trial_weight_( &
+    number_of_particles, number_of_dimensions, &
+    trial_coefficients, &
+    particle_positions, &
+    weight &
+)
+    integer, intent(in) :: number_of_particles, number_of_dimensions
+    double precision, intent(in) :: &
+        particle_positions(number_of_dimensions, number_of_particles), &
+        trial_coefficients(number_of_dimensions)
+    double precision, intent(out) :: weight
+
+    weight = &
+        compute_trial_weight( &
+            number_of_particles, number_of_dimensions, &
+            trial_coefficients, &
+            particle_positions &
+        )
+end subroutine
+!@-node:gcross.20100106124611.2033:compute_trial_weight_
 !@+node:gcross.20091212120817.1280:compute_trial_derivatives
 pure subroutine compute_trial_derivatives( &
     number_of_particles, number_of_dimensions, &
