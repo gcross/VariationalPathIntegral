@@ -13,6 +13,7 @@
 -- @+node:gcross.20091216150502.2171:<< Import needed modules >>
 import Control.Applicative.Infix
 import Control.Applicative
+import Control.Arrow
 
 import Data.NDArray
 import qualified Data.NDArray.Listlike as N
@@ -29,6 +30,7 @@ import Test.QuickCheck
 
 import System.IO.Unsafe
 
+import VPI.Fortran.GreensFunction.SecondOrder
 import VPI.Fortran.Observables
 import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
@@ -108,8 +110,34 @@ main = defaultMain
     -- @+node:gcross.20091226065853.1624:Fortran wrappers
     [testGroup "Fortran wrappers"
         -- @    @+others
+        -- @+node:gcross.20100106124611.2011:vpif.greens_function
+        [testGroup "vpif.greens_function"
+            -- @    @+others
+            -- @+node:gcross.20100106124611.2012:2nd order
+            [testGroup "2nd order"
+                -- @    @+others
+                -- @+node:gcross.20100106124611.2013:initialize_weights
+                [testProperty "initialize_weights" $
+                    choose (2,10) >>= return .
+                    (
+                        \number_of_slices ->
+                            toList (initialize_weights number_of_slices) == [0.5] ++ replicate (number_of_slices-2) 1.0 ++ [0.5]
+                    )
+                -- @-node:gcross.20100106124611.2013:initialize_weights
+                -- @+node:gcross.20100106124611.2017:compute_log_greens_function
+                ,testProperty "compute_log_greens_function" $
+                    liftA2 (~=)
+                        (sum . map (uncurry (*)))
+                        (uncurry compute_log_greens_function . (fromList *** fromList) . unzip)
+                -- @-node:gcross.20100106124611.2017:compute_log_greens_function
+                -- @-others
+                ]
+            -- @-node:gcross.20100106124611.2012:2nd order
+            -- @-others
+            ]
+        -- @-node:gcross.20100106124611.2011:vpif.greens_function
         -- @+node:gcross.20091226065853.1629:vpif.path
-        [testGroup "vpif.path"
+        ,testGroup "vpif.path"
             -- @    @+others
             -- @+node:gcross.20091226065853.2237:compute_separations
             [testGroup "compute_separations"

@@ -23,6 +23,6 @@ Library
                     Vec == 0.9.*,
                     NDArray >= 0.1
 
-    Extra-Libraries: gfortran
+    Extra-Libraries: gfortran, blas
 -- @-node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal
 -- @-leo
