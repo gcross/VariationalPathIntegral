@@ -37,22 +37,20 @@ foreign import ccall unsafe "vpic__observables__compute_energy" vpi__observables
     Int -> -- number of particles
     Int -> -- number of dimensions
     Double -> -- hbar/2m
-    Ptr (Double) -> -- potential
+    Double -> -- potential
     Ptr (Double) -> -- gradient of log trial fn
     Double -> -- laplacian_of_log_trial_fn
     IO Double
 
-compute_energy :: Double -> Array1D Double -> Array2D Double -> Double -> Double
+compute_energy :: Double -> Double -> Array2D Double -> Double -> Double
 compute_energy hbar_over_2m potential gradient_of_log_trial_fn laplacian_of_log_trial_fn =
-    assert (shape1 number_of_particles == ndarrayShape potential) $
     unsafePerformIO $
-    withNDArray potential $ \p_potential ->
     withNDArray gradient_of_log_trial_fn $ \p_gradient_of_log_trial_fn ->
         vpi__observables__compute_energy
             number_of_particles
             number_of_dimensions
             hbar_over_2m
-            p_potential
+            potential
             p_gradient_of_log_trial_fn
             laplacian_of_log_trial_fn
   where

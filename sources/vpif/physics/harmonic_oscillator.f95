@@ -20,12 +20,18 @@ pure subroutine compute_potential( &
         potential_coefficients(number_of_dimensions), &
         particle_positions(number_of_dimensions, number_of_particles, number_of_slices)
     double precision, intent(out) :: &
-        potential(number_of_particles, number_of_slices)
+        potential(number_of_slices)
 
-    integer :: i,j
+    integer :: particle_number, slice_number
+    double precision :: temp(number_of_dimensions)
 
-    forall(i = 1:number_of_slices, j = 1:number_of_particles) &
-        potential(j,i) = dot_product(potential_coefficients,particle_positions(:,j,i)**2)/2d0
+    do slice_number = 1, number_of_slices
+        temp = 0
+        do particle_number = 1, number_of_particles
+            temp = temp + particle_positions(:,particle_number,slice_number)**2
+        end do
+        potential(slice_number) = dot_product(temp,potential_coefficients)/2d0
+    end do
 
 end subroutine
 !@-node:gcross.20091212120817.1281:compute_potential

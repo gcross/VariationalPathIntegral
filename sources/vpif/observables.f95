@@ -19,13 +19,13 @@ function compute_energy( &
     integer, intent(in) :: number_of_dimensions, number_of_particles
     double precision, intent(in) :: &
         hbar_over_2m, &
-        potential(number_of_particles), &
+        potential, &
         gradient_of_log_trial_fn(number_of_dimensions, number_of_particles), &
         laplacian_of_log_trial_fn
 
     double precision :: energy
 
-    energy = sum(potential) - hbar_over_2m * ( sum(gradient_of_log_trial_fn(:,:)**2) + laplacian_of_log_trial_fn )
+    energy = potential - hbar_over_2m * ( sum(gradient_of_log_trial_fn(:,:)**2) + laplacian_of_log_trial_fn )
 
 end function
 !@-node:gcross.20100105133218.1372:compute_energy
@@ -41,7 +41,7 @@ subroutine compute_energy_subroutine( &
     integer, intent(in) :: number_of_dimensions, number_of_particles
     double precision, intent(in) :: &
         hbar_over_2m, &
-        potential(number_of_particles), &
+        potential, &
         gradient_of_log_trial_fn(number_of_dimensions, number_of_particles), &
         laplacian_of_log_trial_fn
     double precision, intent(out) :: energy

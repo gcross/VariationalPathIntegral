@@ -42,13 +42,13 @@ foreign import ccall unsafe "vpic__physics__harmonic_oscillator__compute_potenti
     Ptr (Double) -> -- potential
     IO ()
 
-compute_potential :: Array1D Double -> Array3D Double -> Array2D Double
+compute_potential :: Array1D Double -> Array3D Double -> Array1D Double
 compute_potential coefficients particle_positions =
     assert (shape1 number_of_dimensions == ndarrayShape coefficients) $
     fst . unsafePerformIO $
     withNDArray coefficients $ \p_coefficients ->
     withNDArray particle_positions $ \p_particle_positions ->
-    withNewNDArray (shape2 number_of_slices number_of_particles) $ \p_potential ->
+    withNewNDArray (shape1 number_of_slices) $ \p_potential ->
         vpi__physics__harmonic_oscillator__compute_potential
             number_of_slices
             number_of_particles

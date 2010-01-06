@@ -339,20 +339,20 @@ main = defaultMain
                 -- @    @+others
                 -- @+node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
                 [testProperty "single particle, single dimension, unit coefficient" $ do
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) arbitrary
+                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
                     let coefficients = fromList [1]
                         particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = cut (Index 0 :. All :. ()) $ compute_potential coefficients particle_positions_3darray
+                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                         (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
                     return $ 0.5 ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                 -- @-node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
                 -- @+node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
                 ,testProperty "single particle, single dimension, random coefficient" $ do
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) arbitrary
+                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
                     Positive coefficient <- arbitrary
                     let coefficients = fromList [coefficient]
                         particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = cut (Index 0 :. All :. ()) $ compute_potential coefficients particle_positions_3darray
+                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                         (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
                     return $ (0.5*coefficient) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                 -- @-node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
@@ -362,7 +362,7 @@ main = defaultMain
                     particle_positions_3darray <- arbitraryNDArray (shape3 1 1 number_of_dimensions) (choose (0,1))
                     coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
                     let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = cut (Index 0 :. All :. ()) $ compute_potential coefficients particle_positions_3darray
+                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                         (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
                     return $ (0.5*N.sum coefficients) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                 -- @-node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
@@ -373,7 +373,7 @@ main = defaultMain
                     particle_positions_3darray <- arbitraryNDArray (shape3 1 number_of_particles number_of_dimensions) (choose (0,1))
                     coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
                     let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = cut (Index 0 :. All :. ()) $ compute_potential coefficients particle_positions_3darray
+                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                         (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
                     return $
                         (0.5*(fromIntegral number_of_particles)*N.sum coefficients)

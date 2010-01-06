@@ -8,7 +8,7 @@ void vpic__physics__harmonic_oscillator__compute_potential(
     int number_of_slices, int number_of_particles, int number_of_dimensions,
     double potential_coefficients[number_of_dimensions],
     double particle_positions[number_of_slices][number_of_particles][number_of_dimensions],
-    double potential[number_of_slices][number_of_particles]
+    double potential[number_of_slices]
 ){__vpif__physics__harmonic_oscillator_MOD_compute_potential(
     &number_of_slices, &number_of_particles, &number_of_dimensions,
     potential_coefficients,
