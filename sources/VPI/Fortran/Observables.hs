@@ -45,7 +45,7 @@ foreign import ccall unsafe "vpic__observables__compute_energy" vpi__observables
 compute_energy :: Double -> Double -> Array2D Double -> Double -> Double
 compute_energy hbar_over_2m potential gradient_of_log_trial_fn laplacian_of_log_trial_fn =
     unsafePerformIO $
-    withNDArray gradient_of_log_trial_fn $ \p_gradient_of_log_trial_fn ->
+    withContiguousNDArray gradient_of_log_trial_fn $ \p_gradient_of_log_trial_fn ->
         vpi__observables__compute_energy
             number_of_particles
             number_of_dimensions

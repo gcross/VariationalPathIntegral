@@ -57,8 +57,8 @@ compute_log_greens_function :: Array1D Double -> Array1D Double -> Double
 compute_log_greens_function weights potential =
     assert (shape1 number_of_slices == ndarrayShape potential)
     unsafePerformIO $
-    withNDArray weights $ \p_weights ->
-    withNDArray potential $ \p_potential ->
+    withContiguousNDArray weights $ \p_weights ->
+    withContiguousNDArray potential $ \p_potential ->
         vpi__greens_function__second_order__compute_log_greens_function
             number_of_slices
             p_weights

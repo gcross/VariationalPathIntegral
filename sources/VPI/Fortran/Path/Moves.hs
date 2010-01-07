@@ -54,7 +54,7 @@ foreign import ccall unsafe "vpic__path__moves__rigid" vpi__path__moves__rigid :
 rigid :: Int -> Double -> Array3D Double -> IO (Array3D Double)
 rigid particle_number maximum_shift old_particle_positions =
     fmap fst $
-    withNDArray old_particle_positions $ \p_old_particle_positions ->
+    withContiguousNDArray old_particle_positions $ \p_old_particle_positions ->
     withNewNDArray (ndarrayShape old_particle_positions) $ \p_new_particle_positions ->
         vpi__path__moves__rigid
             number_of_slices

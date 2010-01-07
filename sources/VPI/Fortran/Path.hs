@@ -52,7 +52,7 @@ foreign import ccall unsafe "vpic__path__compute_separations" vpi__path__compute
 compute_separations :: Array3D Double -> Array3D Double
 compute_separations particle_positions =
     fst . unsafePerformIO $
-    withNDArray particle_positions $ \p_positions ->
+    withContiguousNDArray particle_positions $ \p_positions ->
     withNewNDArray (shape3 number_of_slices number_of_particles number_of_particles) $ \p_separations ->
         vpi__path__compute_separations
             number_of_slices

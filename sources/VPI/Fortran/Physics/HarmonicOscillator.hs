@@ -46,8 +46,8 @@ compute_potential :: Array1D Double -> Array3D Double -> Array1D Double
 compute_potential coefficients particle_positions =
     assert (shape1 number_of_dimensions == ndarrayShape coefficients) $
     fst . unsafePerformIO $
-    withNDArray coefficients $ \p_coefficients ->
-    withNDArray particle_positions $ \p_particle_positions ->
+    withContiguousNDArray coefficients $ \p_coefficients ->
+    withContiguousNDArray particle_positions $ \p_particle_positions ->
     withNewNDArray (shape1 number_of_slices) $ \p_potential ->
         vpi__physics__harmonic_oscillator__compute_potential
             number_of_slices
@@ -71,8 +71,8 @@ compute_trial_weight :: Array1D Double -> Array2D Double -> Double
 compute_trial_weight coefficients particle_positions =
     assert (shape1 number_of_dimensions == ndarrayShape coefficients) $
     unsafePerformIO $
-    withNDArray coefficients $ \p_coefficients ->
-    withNDArray particle_positions $ \p_particle_positions ->
+    withContiguousNDArray coefficients $ \p_coefficients ->
+    withContiguousNDArray particle_positions $ \p_particle_positions ->
         vpi__physics__harmonic_oscillator__compute_trial_weight
             number_of_particles
             number_of_dimensions
@@ -94,8 +94,8 @@ compute_trial_derivatives :: Array1D Double -> Array2D Double -> (Array2D Double
 compute_trial_derivatives coefficients particle_positions =
     assert (shape1 number_of_dimensions == ndarrayShape coefficients) $
     unsafePerformIO $
-    withNDArray coefficients $ \p_coefficients ->
-    withNDArray particle_positions $ \p_particle_positions ->
+    withContiguousNDArray coefficients $ \p_coefficients ->
+    withContiguousNDArray particle_positions $ \p_particle_positions ->
     withNewNDArray (shape2 number_of_particles number_of_dimensions) $ \p_gradient_of_log_trial_fn ->
         vpi__physics__harmonic_oscillator__compute_trial_derivatives
             number_of_particles
