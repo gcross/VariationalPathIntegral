@@ -22,11 +22,8 @@ import VPI.Fortran.Path
 -- @+node:gcross.20091211140304.1695:Types
 -- @+node:gcross.20091211140304.1696:Path
 data Path = Path
-    {   pathLength :: Int
-    ,   pathNumberOfParticles :: Int
-    ,   pathNumberOfDimensions :: Int
-    ,   pathParticlePositions :: NDArray (Vec3 Int) Double
-    ,   pathParticleSeparations :: NDArray (Vec3 Int) Double
+    {   pathParticlePositions :: Array3D Double
+    ,   pathParticleSeparations :: Array3D Double
     }
 -- @-node:gcross.20091211140304.1696:Path
 -- @-node:gcross.20091211140304.1695:Types
@@ -34,17 +31,27 @@ data Path = Path
 -- @+node:gcross.20091216150502.1732:createInitialPath
 createInitialPath :: Int -> Int -> [(Double,Double)] -> IO Path
 createInitialPath number_of_slices number_of_particles bounds =
-    create_initial_path number_of_slices number_of_particles bounds
-    >>=
-    \(particle_positions,particle_separations) ->
-        return $
-        Path
-            number_of_slices
-            number_of_particles
-            (length bounds)
-            particle_positions
-            particle_separations
+    fmap (uncurry Path) $ create_initial_path number_of_slices number_of_particles bounds
 -- @-node:gcross.20091216150502.1732:createInitialPath
+-- @+node:gcross.20100106124611.2083:(queries)
+pathNumberOfSlices :: Path -> Int
+pathNumberOfSlices (Path particle_positions _) = number_of_slices
+  where
+    (number_of_slices :. _ :. _ :. _) = ndarrayShape particle_positions
+
+pathLength :: Path -> Int
+pathLength = pathNumberOfSlices
+
+pathNumberOfParticles :: Path -> Int
+pathNumberOfParticles (Path particle_positions _) = number_of_particles
+  where
+    (_ :. number_of_particles :. _ :. _) = ndarrayShape particle_positions
+
+pathNumberOfDimensions :: Path -> Int
+pathNumberOfDimensions (Path particle_positions _) = number_of_dimensions
+  where
+    (_ :. _ :. number_of_dimensions :. _) = ndarrayShape particle_positions
+-- @-node:gcross.20100106124611.2083:(queries)
 -- @-node:gcross.20091216150502.1731:Functions
 -- @-others
 -- @-node:gcross.20091211140304.1694:@thin Path.hs

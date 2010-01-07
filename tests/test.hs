@@ -326,17 +326,8 @@ main = defaultMain
                     >>=
                     return
                     .
-                    \Path
-                    {   pathLength = path_number_of_slices
-                    ,   pathNumberOfParticles = path_number_of_particles
-                    ,   pathNumberOfDimensions = path_number_of_dimensions
-                    ,   pathParticlePositions = particle_positions
-                    ,   pathParticleSeparations = particle_separations
-                    } ->
-                        and [path_number_of_slices == number_of_slices
-                            ,path_number_of_particles == number_of_particles
-                            ,path_number_of_dimensions == number_of_dimensions
-                            ,ndarrayShape particle_positions == number_of_slices :. number_of_particles :. number_of_dimensions :. ()
+                    \(Path particle_positions particle_separations) ->
+                        and [ndarrayShape particle_positions == number_of_slices :. number_of_particles :. number_of_dimensions :. ()
                             ,ndarrayShape particle_separations == number_of_slices :. number_of_particles :. number_of_particles :. ()
                             ]
             -- @-node:gcross.20091226065853.1313:correct shape
