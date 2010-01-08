@@ -17,6 +17,8 @@ Build-Type:     Custom
 
 Library
     Build-Depends:  base == 4.1.*,
+                    statistics == 0.4.1.*,
+                    random == 1.*,
                     filepath == 1.*,
                     Blueprint >= 0.2,
                     InfixApplicative == 1.*,

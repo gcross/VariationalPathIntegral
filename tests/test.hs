@@ -26,6 +26,7 @@ import Test.HUnit
 import Test.Framework
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2
+import Test.Framework.Providers.Statistics
 import Test.QuickCheck
 
 import System.IO.Unsafe
@@ -36,6 +37,8 @@ import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
 import VPI.Fortran.Physics.HarmonicOscillator
 import VPI.Path
+import VPI.Thermalize
+-- @nonl
 -- @-node:gcross.20091216150502.2171:<< Import needed modules >>
 -- @nl
 
@@ -436,6 +439,31 @@ main = defaultMain
         -- @-others
         ]
     -- @-node:gcross.20100105133218.1558:Physics
+    -- @+node:gcross.20100107114651.1453:Thermalize
+    ,testGroup "Thermalize"
+        -- @    @+others
+        -- @+node:gcross.20100107114651.1455:decideWhetherToAcceptChange
+        [testGroup "decideWhetherToAcceptChange"
+            -- @    @+others
+            -- @+node:gcross.20100107114651.1456:new_weight > old_weight
+            [testProperty "new_weight > old_weight" $
+                \weight_1 weight_2 ->
+                    let old_weight = weight_1 `min` weight_2
+                        new_weight = weight_1 `max` weight_2
+                    in unsafePerformIO (decideWhetherToAcceptChange old_weight new_weight)
+            -- @-node:gcross.20100107114651.1456:new_weight > old_weight
+            -- @+node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
+            ,testBinomial "new_weight - old_weight = log 0.5" 1000 0.5 0.01 $ decideWhetherToAcceptChange 0 (log 0.5)
+            -- @-node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
+            -- @+node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
+            ,testBinomial "new_weight - old_weight = log 0.1" 1000 0.1 0.01 $ decideWhetherToAcceptChange 0 (log 0.1)
+            -- @-node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
+            -- @-others
+            ]
+        -- @-node:gcross.20100107114651.1455:decideWhetherToAcceptChange
+        -- @-others
+        ]
+    -- @-node:gcross.20100107114651.1453:Thermalize
     -- @-others
     -- @-node:gcross.20091216150502.2172:<< Tests >>
     -- @nl

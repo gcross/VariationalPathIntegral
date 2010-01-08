@@ -40,6 +40,13 @@
 <v t="gcross.20091227115154.1344"><vh>@thin harmonic_oscillator.c</vh></v>
 </v>
 </v>
+<v t="gcross.20100107114651.1457"><vh>@path Test</vh>
+<v t="gcross.20100107114651.1458"><vh>@path Framework</vh>
+<v t="gcross.20100107114651.1476"><vh>@path Providers</vh>
+<v t="gcross.20100107114651.1459"><vh>@thin Statistics.hs</vh></v>
+</v>
+</v>
+</v>
 <v t="gcross.20091211140304.1693"><vh>@path VPI</vh>
 <v t="gcross.20091217090302.1304"><vh>@path Fortran</vh>
 <v t="gcross.20100106124611.1989"><vh>@path GreensFunction</vh>
@@ -55,6 +62,7 @@
 </v>
 </v>
 <v t="gcross.20091211140304.1694"><vh>@thin Path.hs</vh></v>
+<v t="gcross.20100107114651.1450"><vh>@thin Thermalize.hs</vh></v>
 </v>
 </v>
 <v t="gcross.20091216150502.2168"><vh>@path tests</vh>
@@ -78,5 +86,8 @@
 <t tx="gcross.20100106124611.1983"></t>
 <t tx="gcross.20100106124611.1987"></t>
 <t tx="gcross.20100106124611.1989"></t>
+<t tx="gcross.20100107114651.1457"></t>
+<t tx="gcross.20100107114651.1458"></t>
+<t tx="gcross.20100107114651.1476"></t>
 </tnodes>
 </leo_file>
