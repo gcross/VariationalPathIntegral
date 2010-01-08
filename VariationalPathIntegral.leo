@@ -61,7 +61,15 @@
 <v t="gcross.20091227115154.1353"><vh>@thin HarmonicOscillator.hs</vh></v>
 </v>
 </v>
+<v t="gcross.20100107114651.1440"><vh>@thin Observables.hs</vh></v>
 <v t="gcross.20091211140304.1694"><vh>@thin Path.hs</vh></v>
+<v t="gcross.20100107114651.1445"><vh>@path Path</vh>
+<v t="gcross.20100107114651.1444"><vh>@thin Moves.hs</vh></v>
+</v>
+<v t="gcross.20100106124611.2076"><vh>@thin Physics.hs</vh></v>
+<v t="gcross.20100106124611.2072"><vh>@path Physics</vh>
+<v t="gcross.20100106124611.2073"><vh>@thin HarmonicOscillator.hs</vh></v>
+</v>
 <v t="gcross.20100107114651.1450"><vh>@thin Thermalize.hs</vh></v>
 </v>
 </v>
@@ -86,6 +94,8 @@
 <t tx="gcross.20100106124611.1983"></t>
 <t tx="gcross.20100106124611.1987"></t>
 <t tx="gcross.20100106124611.1989"></t>
+<t tx="gcross.20100106124611.2072"></t>
+<t tx="gcross.20100107114651.1445"></t>
 <t tx="gcross.20100107114651.1457"></t>
 <t tx="gcross.20100107114651.1458"></t>
 <t tx="gcross.20100107114651.1476"></t>
