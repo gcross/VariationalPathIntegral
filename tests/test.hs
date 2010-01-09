@@ -453,10 +453,10 @@ main = defaultMain
                     in unsafePerformIO (decideWhetherToAcceptChange old_weight new_weight)
             -- @-node:gcross.20100107114651.1456:new_weight > old_weight
             -- @+node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
-            ,testBinomial "new_weight - old_weight = log 0.5" 1000 0.5 0.01 $ decideWhetherToAcceptChange 0 (log 0.5)
+            ,testBinomial "new_weight - old_weight = log 0.5" 0.5 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.5)
             -- @-node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
             -- @+node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
-            ,testBinomial "new_weight - old_weight = log 0.1" 1000 0.1 0.01 $ decideWhetherToAcceptChange 0 (log 0.1)
+            ,testBinomial "new_weight - old_weight = log 0.1" 0.1 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.1)
             -- @-node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
             -- @-others
             ]

@@ -23,8 +23,7 @@ Library
                     Blueprint >= 0.2,
                     InfixApplicative == 1.*,
                     Vec == 0.9.*,
-                    NDArray >= 0.1,
-                    test-framework == 0.2.*
+                    NDArray >= 0.1
 
     Extra-Libraries: gfortran, blas
 -- @-node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal
