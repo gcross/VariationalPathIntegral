@@ -23,7 +23,7 @@ double vpic__physics__harmonic_oscillator__compute_trial_weight(
     double particle_positions[number_of_particles][number_of_dimensions]
 ){
     double weight;
-    __vpif__physics__harmonic_oscillator_MOD_compute_trial_weight(
+    __vpif__physics__harmonic_oscillator_MOD_compute_trial_weight_(
         &number_of_particles, &number_of_dimensions,
         trial_coefficients,
         particle_positions,

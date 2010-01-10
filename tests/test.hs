@@ -17,6 +17,7 @@ import Control.Arrow
 
 import Data.NDArray
 import qualified Data.NDArray.Listlike as N
+import Data.Number.Erf
 import Data.Vec((:.)(..))
 
 
@@ -293,7 +294,7 @@ main = defaultMain
                                 fromListWithShape (shape2 1 1)
                                 .
                                 (:[])
-                        in weightOf distance < 1e-15
+                        in weightOf distance <= 0
                 -- @-node:gcross.20100106124611.2024:correct sign
                 -- @+node:gcross.20100106124611.2031:correct monotonicity
                 ,testProperty "correct monotonicity" $
@@ -304,7 +305,7 @@ main = defaultMain
                                 fromListWithShape (shape2 1 1)
                                 .
                                 (:[])
-                        in weightOf distance_1 <= weightOf (distance_1+distance_2)
+                        in weightOf distance_1 >= weightOf (distance_1+distance_2)
                 -- @-node:gcross.20100106124611.2031:correct monotonicity
                 -- @-others
                 ]
@@ -476,6 +477,20 @@ main = defaultMain
                     ,antiTest $ testWalkDistribution "cumulative distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 20000 0.01 (return 0) computeNextPosition
                     ]
             -- @-node:gcross.20100109140101.1529:effectively samples linear distribution
+            -- @+node:gcross.20100109140101.1533:effectively samples harmonic oscillator ground state
+            ,testGroup "effectively samples harmonic oscillator ground state" $
+                let computeWeight = (2*) . compute_trial_weight (fromList [1]) . fromListWithShape (shape2 1 1) . (:[])
+                    computeNextPosition previous_position = do
+                        next_position <- fmap ((previous_position+).(0.5-).(*1)) randomIO
+                        accept <- decideWhetherToAcceptChange (computeWeight previous_position) (computeWeight next_position)
+                        return . (id &&& id) $
+                            if accept
+                                then next_position
+                                else previous_position
+                in  [testWalkDistribution "cumulative distribution = erf (correct, should succeed)" ((/2).(+1).erf) 40000 0.0001 (return 0) computeNextPosition
+                    ,antiTest $ testWalkDistribution "cumulative distribution = erf*1.1 (correct, should succeed)" ((**1.1).(/2).(+1).erf) 40000 0.001 (return 0) computeNextPosition
+                    ]
+            -- @-node:gcross.20100109140101.1533:effectively samples harmonic oscillator ground state
             -- @-others
             ]
         -- @-node:gcross.20100107114651.1455:decideWhetherToAcceptChange

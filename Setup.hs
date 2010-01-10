@@ -89,6 +89,7 @@ main =
             ,"test-framework-antitest == 0.1.*"
             ,"test-framework-statistics == 0.1.*"
             ,"mersenne-random == 1.*"
+            ,"erf == 1.*"
             ]
            )
         )
