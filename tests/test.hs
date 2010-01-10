@@ -24,11 +24,13 @@ import Debug.Trace
 
 import Test.HUnit
 import Test.Framework
+import Test.Framework.Providers.AntiTest
 import Test.Framework.Providers.HUnit
 import Test.Framework.Providers.QuickCheck2
 import Test.Framework.Providers.Statistics
 import Test.QuickCheck
 
+import System.Random.Mersenne
 import System.IO.Unsafe
 
 import VPI.Fortran.GreensFunction.SecondOrder
@@ -194,7 +196,7 @@ main = defaultMain
                         ]
                 -- @-node:gcross.20091227115154.1333:only selected particle is moved
                 -- @+node:gcross.20091227115154.1336:moves stay within range
-                ,testProperty "only selected particle is moved" $ do
+                ,testProperty "moves stay within range" $ do
                     number_of_slices <- choose (1,10)
                     let number_of_particles = 1
                         particle_number = 1
@@ -456,11 +458,31 @@ main = defaultMain
                     in unsafePerformIO (decideWhetherToAcceptChange old_weight new_weight)
             -- @-node:gcross.20100107114651.1456:new_weight > old_weight
             -- @+node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
-            ,testBinomial "new_weight - old_weight = log 0.5" 0.5 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.5)
+            ,testBernoulli "new_weight - old_weight = log 0.5" 0.5 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.5)
             -- @-node:gcross.20100107114651.1473:new_weight - old_weight = log 0.5
             -- @+node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
-            ,testBinomial "new_weight - old_weight = log 0.1" 0.1 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.1)
+            ,testBernoulli "new_weight - old_weight = log 0.1" 0.1 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.1)
             -- @-node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
+            -- @+node:gcross.20100109140101.1529:effectively samples linear distribution
+            ,testWalkDistribution "effectively samples linear distribution" (\x -> x*x) 20000 0.001 (return 0) $
+                \previous_position -> do
+                    next_position <- randomIO
+                    accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
+                    return . (id &&& id) $
+                        if accept
+                            then next_position
+                            else previous_position
+            -- @-node:gcross.20100109140101.1529:effectively samples linear distribution
+            -- @+node:gcross.20100109140101.1531:effectively samples linear distribution
+            ,antiTest $ testWalkDistribution "effectively samples linear distribution (deliberate fail)" (\x -> x**2.1) 20000 0.001 (return 0) $
+                \previous_position -> do
+                    next_position <- randomIO
+                    accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
+                    return . (id &&& id) $
+                        if accept
+                            then next_position
+                            else previous_position
+            -- @-node:gcross.20100109140101.1531:effectively samples linear distribution
             -- @-others
             ]
         -- @-node:gcross.20100107114651.1455:decideWhetherToAcceptChange

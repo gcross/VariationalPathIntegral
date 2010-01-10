@@ -88,6 +88,7 @@ main =
             ,"test-framework-quickcheck2 == 0.2.*"
             ,"test-framework-antitest == 0.1.*"
             ,"test-framework-statistics == 0.1.*"
+            ,"mersenne-random == 1.*"
             ]
            )
         )
