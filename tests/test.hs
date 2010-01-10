@@ -464,25 +464,18 @@ main = defaultMain
             ,testBernoulli "new_weight - old_weight = log 0.1" 0.1 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.1)
             -- @-node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
             -- @+node:gcross.20100109140101.1529:effectively samples linear distribution
-            ,testWalkDistribution "effectively samples linear distribution" (\x -> x*x) 20000 0.001 (return 0) $
-                \previous_position -> do
-                    next_position <- randomIO
-                    accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
-                    return . (id &&& id) $
-                        if accept
-                            then next_position
-                            else previous_position
+            ,testGroup "effectively samples linear distribution" $
+                let computeNextPosition previous_position = do
+                        next_position <- randomIO
+                        accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
+                        return . (id &&& id) $
+                            if accept
+                                then next_position
+                                else previous_position
+                in  [testWalkDistribution "cumulative distribution = x^2 (correct, should succeed)" (\x -> x*x) 20000 0.001 (return 0) computeNextPosition
+                    ,antiTest $ testWalkDistribution "cumulative distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 20000 0.01 (return 0) computeNextPosition
+                    ]
             -- @-node:gcross.20100109140101.1529:effectively samples linear distribution
-            -- @+node:gcross.20100109140101.1531:effectively samples linear distribution
-            ,antiTest $ testWalkDistribution "effectively samples linear distribution (deliberate fail)" (\x -> x**2.1) 20000 0.001 (return 0) $
-                \previous_position -> do
-                    next_position <- randomIO
-                    accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
-                    return . (id &&& id) $
-                        if accept
-                            then next_position
-                            else previous_position
-            -- @-node:gcross.20100109140101.1531:effectively samples linear distribution
             -- @-others
             ]
         -- @-node:gcross.20100107114651.1455:decideWhetherToAcceptChange
