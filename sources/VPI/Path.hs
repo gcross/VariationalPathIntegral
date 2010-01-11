@@ -4,6 +4,8 @@
 
 -- @<< Language extensions >>
 -- @+node:gcross.20091217090302.1337:<< Language extensions >>
+{-# LANGUAGE ScopedTypeVariables #-}
+-- @nonl
 -- @-node:gcross.20091217090302.1337:<< Language extensions >>
 -- @nl
 
@@ -12,7 +14,9 @@ module VPI.Path where
 -- @<< Import needed modules >>
 -- @+node:gcross.20091211140304.1697:<< Import needed modules >>
 import Data.NDArray
-import Data.Vec (Vec3,(:.)(..))
+import Data.NDArray.Classes
+import Data.NDArray.Cuts
+import Data.Vec (Vec3,(:.)(..),get)
 
 import VPI.Fortran.Path
 -- @-node:gcross.20091211140304.1697:<< Import needed modules >>
@@ -54,7 +58,7 @@ makePathFromPositions particle_positions =
 pathNumberOfSlices :: Path -> Int
 pathNumberOfSlices (Path particle_positions _) = number_of_slices
   where
-    (number_of_slices :. _ :. _ :. _) = ndarrayShape particle_positions
+    (number_of_slices :. _ :. _ :. _ :: Vec3 Int) = ndarrayShape particle_positions
 
 pathLength :: Path -> Int
 pathLength = pathNumberOfSlices
@@ -62,12 +66,12 @@ pathLength = pathNumberOfSlices
 pathNumberOfParticles :: Path -> Int
 pathNumberOfParticles (Path particle_positions _) = number_of_particles
   where
-    (_ :. number_of_particles :. _ :. _) = ndarrayShape particle_positions
+    (_ :. number_of_particles :. _ :. _ :: Vec3 Int) = ndarrayShape particle_positions
 
 pathNumberOfDimensions :: Path -> Int
 pathNumberOfDimensions (Path particle_positions _) = number_of_dimensions
   where
-    (_ :. _ :. number_of_dimensions :. _) = ndarrayShape particle_positions
+    (_ :. _ :. number_of_dimensions :. _ :: Vec3 Int) = ndarrayShape particle_positions
 -- @-node:gcross.20100106124611.2083:(queries)
 -- @+node:gcross.20100107114651.1436:slicePath
 slicePath :: Int -> Path -> PathSlice

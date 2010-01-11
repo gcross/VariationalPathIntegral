@@ -21,6 +21,8 @@ module VPI.Fortran.Path where
 import Control.Arrow
 
 import Data.NDArray
+import Data.NDArray.Classes
+import Data.NDArray.Indexable
 import Data.Vec ((:.)(..)
                 ,Vec2
                 ,Vec3

@@ -16,10 +16,13 @@ import Control.Applicative
 import Control.Arrow
 
 import Data.NDArray
+import Data.NDArray.Cuts
+import Data.NDArray.Classes
+import Data.NDArray.Indexable
 import qualified Data.NDArray.Listlike as N
+import Data.NDArray.Mutable
 import Data.Number.Erf
 import Data.Vec((:.)(..))
-
 
 import Debug.Trace
 
@@ -35,6 +38,7 @@ import System.Random.Mersenne
 import System.IO.Unsafe
 
 import VPI.Fortran.GreensFunction.SecondOrder
+import VPI.Fortran.Histograms.Position
 import VPI.Fortran.Observables
 import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
@@ -142,6 +146,34 @@ main = defaultMain
             -- @-others
             ]
         -- @-node:gcross.20100106124611.2011:vpif.greens_function
+        -- @+node:gcross.20100109140101.1559:vpif.histograms.position
+        ,testGroup "vpif.histograms.position"
+            -- @    @+others
+            -- @+node:gcross.20100109140101.1560:bin_all_1d_integrated_slices
+            [testProperty "bin_all_1d_integrated_slices" $ do
+                number_of_dimensions <- choose (1,10)
+                number_of_bins <- choose (2,10)
+                lower_bounds <- vectorOf number_of_dimensions (choose (-2,-1))
+                upper_bounds <- vectorOf number_of_dimensions (choose (1,2))
+                particle_position <- mapM choose (zip lower_bounds upper_bounds)
+                let particle_positions_ndarray = fromListWithShape (shape2 1 number_of_dimensions) particle_position
+                    lower_bounds_ndarray = fromList lower_bounds
+                    upper_bounds_ndarray = fromList upper_bounds
+                    histogram = unsafePerformIO $ do
+                        histogram <- createFromListWithShape (shape2 number_of_dimensions number_of_bins) (repeat 0)
+                        bin_all_1d_integrated_slices lower_bounds_ndarray upper_bounds_ndarray histogram particle_positions_ndarray
+                        readIntoList histogram
+                    bins = zipWith3
+                            (\position lower_bound upper_bound ->
+                                floor $ (position-lower_bound)/(upper_bound-lower_bound)*fromIntegral number_of_bins
+                            )
+                            particle_position lower_bounds upper_bounds 
+                    correct_histogram = concat [replicate bin 0 ++ [1] ++ replicate (number_of_bins-bin-1) 0 | bin <- bins]
+                return $ correct_histogram == histogram
+            -- @-node:gcross.20100109140101.1560:bin_all_1d_integrated_slices
+            -- @-others
+            ]
+        -- @-node:gcross.20100109140101.1559:vpif.histograms.position
         -- @+node:gcross.20091226065853.1629:vpif.path
         ,testGroup "vpif.path"
             -- @    @+others
@@ -473,8 +505,8 @@ main = defaultMain
                             if accept
                                 then next_position
                                 else previous_position
-                in  [testWalkDistribution "cumulative distribution = x^2 (correct, should succeed)" (\x -> x*x) 20000 0.001 (return 0) computeNextPosition
-                    ,antiTest $ testWalkDistribution "cumulative distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 20000 0.01 (return 0) computeNextPosition
+                in  [testWalkDistribution "cumulative distribution = x^2 (correct, should succeed)" (\x -> x*x) 40000 0.001 (return 0) computeNextPosition
+                    ,antiTest $ testWalkDistribution "cumulative distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 40000 0.01 (return 0) computeNextPosition
                     ]
             -- @-node:gcross.20100109140101.1529:effectively samples linear distribution
             -- @+node:gcross.20100109140101.1533:effectively samples harmonic oscillator ground state

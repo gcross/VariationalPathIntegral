@@ -22,6 +22,8 @@ import Control.Arrow
 import Control.Exception
 
 import Data.NDArray
+import Data.NDArray.Classes
+import Data.NDArray.Indexable
 import Data.Vec ((:.)(..))
 
 import Foreign.Marshal.Array
