@@ -73,6 +73,7 @@
 <v t="gcross.20100106124611.2073"><vh>@thin HarmonicOscillator.hs</vh></v>
 </v>
 <v t="gcross.20100107114651.1450"><vh>@thin Thermalize.hs</vh></v>
+<v t="gcross.20100111122429.1484"><vh>@thin Updatable.hs</vh></v>
 </v>
 </v>
 <v t="gcross.20091216150502.2168"><vh>@path tests</vh>

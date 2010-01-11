@@ -197,6 +197,54 @@ main = defaultMain
                 -- @-others
                 ]
             -- @-node:gcross.20091226065853.2237:compute_separations
+            -- @+node:gcross.20100111122429.1495:update (Path)
+            ,testProperty "update_path" $ do
+                number_of_slices <- choose (4,10)
+                number_of_particles <- choose (1,10)
+                number_of_dimensions <- choose (1,10)
+                start_slice <- choose (1,number_of_slices-1)
+                end_slice <- choose (start_slice+1,number_of_slices)
+                let number_of_slices_to_update = end_slice-start_slice+1
+                old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) arbitrary
+                old_particle_separations <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_particles) arbitrary
+                updated_particle_positions <- arbitraryNDArray (shape3 number_of_slices_to_update number_of_particles number_of_dimensions) arbitrary
+                updated_particle_separations <- arbitraryNDArray (shape3 number_of_slices_to_update number_of_particles number_of_particles) arbitrary
+                let (new_particle_positions,new_particle_separations) =
+                        update_path
+                            old_particle_positions
+                            old_particle_separations
+                            start_slice
+                            updated_particle_positions
+                            updated_particle_separations
+                    correct_particle_positions_list =
+                        (if start_slice > 0
+                            then toList . cut (Range 0 (start_slice-1) :. All :. All :. ()) $ old_particle_positions
+                            else []
+                        )
+                        ++
+                        (toList updated_particle_positions)
+                        ++
+                        (if end_slice < number_of_slices
+                            then toList . cut (Range end_slice number_of_slices :. All :. All :. ()) $ old_particle_positions
+                            else []
+                        )
+                    correct_particle_separations_list =
+                        (if start_slice > 0
+                            then toList . cut (Range 0 (start_slice-1) :. All :. All :. ()) $ old_particle_separations
+                            else []
+                        )
+                        ++
+                        (toList updated_particle_separations)
+                        ++
+                        (if end_slice < number_of_slices
+                            then toList . cut (Range end_slice number_of_slices :. All :. All :. ()) $ old_particle_separations
+                            else []
+                        )
+                return $
+                    (correct_particle_positions_list == toList new_particle_positions)
+                    &&
+                    (correct_particle_separations_list == toList new_particle_separations)
+            -- @-node:gcross.20100111122429.1495:update (Path)
             -- @-others
             ]
         -- @-node:gcross.20091226065853.1629:vpif.path

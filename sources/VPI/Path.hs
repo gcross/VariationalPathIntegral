@@ -19,6 +19,8 @@ import Data.NDArray.Cuts
 import Data.Vec (Vec3,(:.)(..),get)
 
 import VPI.Fortran.Path
+import VPI.Updatable
+-- @nonl
 -- @-node:gcross.20091211140304.1697:<< Import needed modules >>
 -- @nl
 
@@ -38,6 +40,13 @@ data PathSlice = PathSlice
     }
 -- @-node:gcross.20100107114651.1435:PathSlice
 -- @-node:gcross.20091211140304.1695:Types
+-- @+node:gcross.20100111122429.1486:Instances
+-- @+node:gcross.20100111122429.1487:Updatable
+instance Updatable Path where
+    update (Path old_particle_positions old_particle_separations) update_start_slice (Path updated_particle_positions updated_particle_separations) =
+        uncurry Path $ update_path old_particle_positions old_particle_separations update_start_slice updated_particle_positions updated_particle_separations
+-- @-node:gcross.20100111122429.1487:Updatable
+-- @-node:gcross.20100111122429.1486:Instances
 -- @+node:gcross.20091216150502.1731:Functions
 -- @+node:gcross.20091216150502.1732:createInitialPath
 createInitialPath :: Int -> Int -> [(Double,Double)] -> IO Path

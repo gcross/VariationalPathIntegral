@@ -71,6 +71,38 @@ subroutine create_initial_path( &
 
 end subroutine
 !@-node:gcross.20091216150502.1727:create_initial_path
+!@+node:gcross.20100111122429.1488:update_path
+pure subroutine update_path( &
+    number_of_slices, number_of_particles, number_of_dimensions, &
+    update_start_slice, update_end_slice, &
+    old_particle_positions, old_particle_separations, &
+    updated_particle_positions, updated_particle_separations, &
+    new_particle_positions, new_particle_separations &
+)
+    integer, intent(in) :: &
+        number_of_dimensions, number_of_particles, number_of_slices, &
+        update_start_slice, update_end_slice
+
+    double precision, intent(in) :: &
+        old_particle_positions(number_of_dimensions, number_of_particles, number_of_slices), &
+        old_particle_separations(number_of_particles, number_of_particles, number_of_slices), &
+        updated_particle_positions(number_of_dimensions, number_of_particles, update_end_slice-update_start_slice+1), &
+        updated_particle_separations(number_of_particles, number_of_particles, update_end_slice-update_start_slice+1)
+
+    double precision, intent(out) :: &
+        new_particle_positions(number_of_dimensions, number_of_particles, number_of_slices), &
+        new_particle_separations(number_of_particles, number_of_particles, number_of_slices)
+
+    new_particle_positions(:,:,:update_start_slice-1) = old_particle_positions(:,:,:update_start_slice-1)
+    new_particle_positions(:,:,update_start_slice:update_end_slice) = updated_particle_positions(:,:,:)
+    new_particle_positions(:,:,update_end_slice+1:) = old_particle_positions(:,:,update_end_slice+1:)
+
+    new_particle_separations(:,:,:update_start_slice-1) = old_particle_separations(:,:,:update_start_slice-1)
+    new_particle_separations(:,:,update_start_slice:update_end_slice) = updated_particle_separations(:,:,:)
+    new_particle_separations(:,:,update_end_slice+1:) = old_particle_separations(:,:,update_end_slice+1:)
+
+end subroutine
+!@-node:gcross.20100111122429.1488:update_path
 !@-others
 
 end module
