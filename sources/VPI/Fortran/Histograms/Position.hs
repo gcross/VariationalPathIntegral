@@ -27,7 +27,7 @@ import Data.NDArray
 import Data.NDArray.Classes
 import Data.NDArray.Indexable
 import Data.NDArray.Mutable
-import Data.Vec ((:.)(..),Vec2)
+import Data.Vec ((:.)(..),get,n1)
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -67,7 +67,7 @@ bin_all_1d_integrated_slices lower_bounds upper_bounds histogram particle_positi
             p_histogram
   where
     number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
-    (_ :. number_of_bins :. () :: Vec2 Int) = ndarrayShape histogram
+    number_of_bins = get n1 (ndarrayShape histogram)
 -- @-node:gcross.20100109140101.1558:bin_all_1d_integrated_slices
 -- @-others
 -- @-node:gcross.20100109140101.1554:@thin Position.hs

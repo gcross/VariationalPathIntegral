@@ -23,16 +23,7 @@ import Control.Arrow
 import Data.NDArray
 import Data.NDArray.Classes
 import Data.NDArray.Indexable
-import Data.Vec ((:.)(..)
-                ,Vec2
-                ,Vec3
-                ,Vec4
-                ,Vec5
-                ,Vec6
-                ,Vec7
-                ,Vec8
-                ,Vec9
-                )
+import Data.Vec ((:.)(..))
 
 import Foreign.Marshal.Array
 import Foreign.Ptr

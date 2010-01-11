@@ -31,27 +31,6 @@ __vpif__path_MOD_create_initial_path(
 );
 }
 //@-node:gcross.20091216150502.1729:create_initial_path
-//@+node:gcross.20100111122429.1490:update_path
-void vpic__path__update_path(
-    int number_of_slices, int number_of_particles, int number_of_dimensions,
-    int update_start_slice, int update_end_slice,
-    double old_particle_positions[number_of_slices][number_of_particles][number_of_dimensions],
-    double old_particle_separations[number_of_slices][number_of_particles][number_of_particles],
-    double updated_particle_positions[][number_of_particles][number_of_dimensions],
-    double updated_particle_separations[][number_of_particles][number_of_dimensions],
-    double new_particle_positions[number_of_slices][number_of_particles][number_of_dimensions],
-    double new_particle_separations[number_of_slices][number_of_particles][number_of_particles]
-) {__vpif__path_MOD_update_path(
-    &number_of_slices, &number_of_particles, &number_of_dimensions,
-    &update_start_slice, &update_end_slice,
-    old_particle_positions,
-    old_particle_separations,
-    updated_particle_positions,
-    updated_particle_separations,
-    new_particle_positions,
-    new_particle_separations
-);}
-//@-node:gcross.20100111122429.1490:update_path
 //@-others
 //@-node:gcross.20091216150502.1728:@thin path.c
 //@-leo

@@ -13,10 +13,16 @@ module VPI.Path where
 
 -- @<< Import needed modules >>
 -- @+node:gcross.20091211140304.1697:<< Import needed modules >>
+import Control.Exception
+
 import Data.NDArray
 import Data.NDArray.Classes
 import Data.NDArray.Cuts
-import Data.Vec (Vec3,(:.)(..),get)
+import Data.NDArray.Indexable
+import qualified Data.Vec as V
+import Data.Vec ((:.)(..),get,n0,n1,n2)
+
+import System.IO.Unsafe
 
 import VPI.Fortran.Path
 import VPI.Updatable
@@ -44,7 +50,8 @@ data PathSlice = PathSlice
 -- @+node:gcross.20100111122429.1487:Updatable
 instance Updatable Path where
     update (Path old_particle_positions old_particle_separations) update_start_slice (Path updated_particle_positions updated_particle_separations) =
-        uncurry Path $ update_path old_particle_positions old_particle_separations update_start_slice updated_particle_positions updated_particle_separations
+        Path (update old_particle_positions update_start_slice updated_particle_positions)
+             (update old_particle_separations update_start_slice updated_particle_separations)
 -- @-node:gcross.20100111122429.1487:Updatable
 -- @-node:gcross.20100111122429.1486:Instances
 -- @+node:gcross.20091216150502.1731:Functions
@@ -65,22 +72,16 @@ makePathFromPositions particle_positions =
 -- @-node:gcross.20100107114651.1449:makePathFromPositions
 -- @+node:gcross.20100106124611.2083:(queries)
 pathNumberOfSlices :: Path -> Int
-pathNumberOfSlices (Path particle_positions _) = number_of_slices
-  where
-    (number_of_slices :. _ :. _ :. _ :: Vec3 Int) = ndarrayShape particle_positions
+pathNumberOfSlices = get n0 . ndarrayShape . pathParticlePositions
 
 pathLength :: Path -> Int
 pathLength = pathNumberOfSlices
 
 pathNumberOfParticles :: Path -> Int
-pathNumberOfParticles (Path particle_positions _) = number_of_particles
-  where
-    (_ :. number_of_particles :. _ :. _ :: Vec3 Int) = ndarrayShape particle_positions
+pathNumberOfParticles = get n1 . ndarrayShape . pathParticlePositions
 
 pathNumberOfDimensions :: Path -> Int
-pathNumberOfDimensions (Path particle_positions _) = number_of_dimensions
-  where
-    (_ :. _ :. number_of_dimensions :. _ :: Vec3 Int) = ndarrayShape particle_positions
+pathNumberOfDimensions = get n2 . ndarrayShape . pathParticlePositions
 -- @-node:gcross.20100106124611.2083:(queries)
 -- @+node:gcross.20100107114651.1436:slicePath
 slicePath :: Int -> Path -> PathSlice

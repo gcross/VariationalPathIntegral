@@ -25,7 +25,7 @@ import Control.Exception
 import Data.NDArray
 import Data.NDArray.Classes
 import Data.NDArray.Indexable
-import Data.Vec ((:.)(..),Vec2,Vec3)
+import Data.Vec ((:.)(..),get,n0)
 
 import Foreign.Marshal.Array
 import Foreign.Ptr
@@ -90,50 +90,6 @@ create_initial_path number_of_slices number_of_particles bounds =
     number_of_dimensions = length bounds
     (lower_bounds,upper_bounds) = unzip bounds
 -- @-node:gcross.20091226065853.1634:create_initial_path
--- @+node:gcross.20100111122429.1492:update_path
-foreign import ccall unsafe "vpic__path__update_path" vpi__path__update_path :: 
-    Int -> -- number of slices
-    Int -> -- number of particles
-    Int -> -- number of dimensions
-    Int -> -- start slice of update
-    Int -> -- end slice of update
-    Ptr Double -> -- old particle positions
-    Ptr Double -> -- old particle separations
-    Ptr Double -> -- updated particle positions
-    Ptr Double -> -- updated particle separations
-    Ptr Double -> -- new particle positions
-    Ptr Double -> -- new particle separations
-    IO ()
-
-update_path :: Array3D Double -> Array3D Double -> Int -> Array3D Double -> Array3D Double -> (Array3D Double,Array3D Double)
-update_path old_particle_positions old_particle_separations update_start_slice updated_particle_positions updated_particle_separations =
-    assert (shape3 number_of_slices number_of_particles number_of_particles == ndarrayShape old_particle_separations) $
-    assert (shape3 number_of_slices_to_update number_of_particles number_of_particles == ndarrayShape updated_particle_separations) $
-    assert (update_end_slice <= number_of_slices) $
-    second fst . unsafePerformIO $
-    withContiguousNDArray old_particle_positions $ \p_old_particle_positions ->
-    withContiguousNDArray old_particle_separations $ \p_old_particle_separations ->
-    withContiguousNDArray updated_particle_positions $ \p_updated_particle_positions ->
-    withContiguousNDArray updated_particle_separations $ \p_updated_particle_separations ->
-    withNewNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) $ \p_new_particle_positions ->
-    withNewNDArray (shape3 number_of_slices number_of_particles number_of_particles) $ \p_new_particle_separations ->
-        vpi__path__update_path
-            number_of_slices
-            number_of_particles
-            number_of_dimensions
-            update_start_slice
-            update_end_slice
-            p_old_particle_positions
-            p_old_particle_separations
-            p_updated_particle_positions
-            p_updated_particle_separations
-            p_new_particle_positions
-            p_new_particle_separations
-  where
-    number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape old_particle_positions
-    (number_of_slices_to_update :. _ :. _ :. () :: Vec3 Int) = ndarrayShape updated_particle_positions
-    update_end_slice = update_start_slice + number_of_slices_to_update - 1
--- @-node:gcross.20100111122429.1492:update_path
 -- @-others
 -- @-node:gcross.20091217090302.1306:@thin Path.hs
 -- @-leo
