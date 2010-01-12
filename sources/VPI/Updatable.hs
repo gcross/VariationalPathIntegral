@@ -36,15 +36,18 @@ class Updatable a where
 -- @-node:gcross.20100111122429.1745:Classes
 -- @+node:gcross.20100111122429.1998:Instances
 -- @+node:gcross.20100111122429.1999:Updatable (NDArray)
-instance (Indexable indexType, Storable dataType, V.Fold indexType Int, V.Head indexType Int) => Updatable (NDArray indexType dataType) where
-    update old_ndarray update_start_slice updated_ndarray =
-        assert (old_stride == update_stride) $
-        assert (update_end_slice <= number_of_slices) $
-        fst . unsafePerformIO $
-        withContiguousNDArray old_ndarray $ \p_old_ndarray ->
-        withContiguousNDArray updated_ndarray $ \p_updated_ndarray ->
-        withNewNDArray old_shape $ \p_new_ndarray ->
-            updateArray old_length p_old_ndarray update_length p_updated_ndarray update_start_index p_new_ndarray
+instance (Indexable indexType, Storable dataType, V.Fold indexType Int, V.Head indexType Int, Eq indexType) => Updatable (NDArray indexType dataType) where
+    update old_ndarray update_start_slice updated_ndarray
+       | (old_shape == updated_shape) && (update_start_slice == 0)
+          = updated_ndarray
+       | otherwise
+          = assert (old_stride == update_stride) $
+            assert (update_end_slice <= number_of_slices) $
+            fst . unsafePerformIO $
+            withContiguousNDArray old_ndarray $ \p_old_ndarray ->
+            withContiguousNDArray updated_ndarray $ \p_updated_ndarray ->
+            withNewNDArray old_shape $ \p_new_ndarray ->
+                updateArray old_length p_old_ndarray update_length p_updated_ndarray update_start_index p_new_ndarray
       where
         old_shape = ndarrayShape old_ndarray
         old_length = V.product old_shape

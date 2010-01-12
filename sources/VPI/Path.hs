@@ -25,6 +25,7 @@ import Data.Vec ((:.)(..),get,n0,n1,n2)
 import System.IO.Unsafe
 
 import VPI.Fortran.Path
+import VPI.Subrangeable
 import VPI.Updatable
 -- @nonl
 -- @-node:gcross.20091211140304.1697:<< Import needed modules >>
@@ -47,6 +48,12 @@ data PathSlice = PathSlice
 -- @-node:gcross.20100107114651.1435:PathSlice
 -- @-node:gcross.20091211140304.1695:Types
 -- @+node:gcross.20100111122429.1486:Instances
+-- @+node:gcross.20100111122429.2050:Subrangeable
+instance Subrangeable Path where
+    subrange start_slice end_slice (Path positions separations) =
+        Path (cut (Range start_slice end_slice :. ()) positions)
+             (cut (Range start_slice end_slice :. ()) separations)
+-- @-node:gcross.20100111122429.2050:Subrangeable
 -- @+node:gcross.20100111122429.1487:Updatable
 instance Updatable Path where
     update (Path old_particle_positions old_particle_separations) update_start_slice (Path updated_particle_positions updated_particle_separations) =
@@ -82,7 +89,6 @@ pathNumberOfParticles = get n1 . ndarrayShape . pathParticlePositions
 
 pathNumberOfDimensions :: Path -> Int
 pathNumberOfDimensions = get n2 . ndarrayShape . pathParticlePositions
--- @-node:gcross.20100106124611.2083:(queries)
 -- @+node:gcross.20100107114651.1436:slicePath
 slicePath :: Int -> Path -> PathSlice
 slicePath slice_number path
@@ -98,6 +104,14 @@ slicePath slice_number path
             ,   pathSliceParticleSeparations = cut slice (pathParticleSeparations path)
             }
 -- @-node:gcross.20100107114651.1436:slicePath
+-- @-node:gcross.20100106124611.2083:(queries)
+-- @+node:gcross.20100111122429.2014:firstPathSlice / lastPathSlice
+firstPathSlice :: Path -> PathSlice
+firstPathSlice = slicePath 0
+
+lastPathSlice :: Path -> PathSlice
+lastPathSlice path = slicePath (pathLength path - 1) path
+-- @-node:gcross.20100111122429.2014:firstPathSlice / lastPathSlice
 -- @-node:gcross.20091216150502.1731:Functions
 -- @-others
 -- @-node:gcross.20091211140304.1694:@thin Path.hs

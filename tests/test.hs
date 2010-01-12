@@ -15,6 +15,7 @@ import Control.Applicative.Infix
 import Control.Applicative
 import Control.Arrow
 
+import Data.Function
 import Data.NDArray
 import Data.NDArray.Cuts
 import Data.NDArray.Classes
@@ -44,6 +45,7 @@ import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
 import VPI.Fortran.Physics.HarmonicOscillator
 import VPI.Path
+import VPI.Subrangeable
 import VPI.Thermalize
 import VPI.Updatable
 -- @nonl
