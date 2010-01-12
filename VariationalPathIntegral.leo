@@ -64,6 +64,7 @@
 </v>
 </v>
 <v t="gcross.20100107114651.1440"><vh>@thin Observables.hs</vh></v>
+<v t="gcross.20100107114651.1440"><vh>@thin Estimator.hs</vh></v>
 <v t="gcross.20091211140304.1694"><vh>@thin Path.hs</vh></v>
 <v t="gcross.20100107114651.1445"><vh>@path Path</vh>
 <v t="gcross.20100107114651.1444"><vh>@thin Moves.hs</vh></v>

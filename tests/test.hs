@@ -16,6 +16,7 @@ import Control.Applicative
 import Control.Arrow
 
 import Data.Function
+import Data.List
 import Data.NDArray
 import Data.NDArray.Cuts
 import Data.NDArray.Classes
@@ -44,11 +45,11 @@ import VPI.Fortran.Observables
 import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
 import VPI.Fortran.Physics.HarmonicOscillator
+import VPI.Estimator
 import VPI.Path
 import VPI.Subrangeable
 import VPI.Thermalize
 import VPI.Updatable
--- @nonl
 -- @-node:gcross.20091216150502.2171:<< Import needed modules >>
 -- @nl
 
@@ -351,6 +352,21 @@ main = defaultMain
         -- @-others
         ]
     -- @-node:gcross.20091226065853.1624:Fortran wrappers
+    -- @+node:gcross.20100111215927.1535:Estimator
+    ,testGroup "Estimator"
+        -- @    @+others
+        -- @+node:gcross.20100111215927.1536:correct statistics
+        [testProperty "correct statistics" $
+            \(samples :: [Double]) -> (not . null) samples ==>
+                let number_of_samples = fromIntegral (length samples)
+                    correct_mean = sum samples / number_of_samples
+                    correct_variance = (sum . map (**2)) samples / number_of_samples - correct_mean**2
+                    (mean,variance) = (summarizeEstimator . foldl' updateEstimator emptyEstimator) samples --'
+                in mean == correct_mean && variance == correct_variance
+        -- @-node:gcross.20100111215927.1536:correct statistics
+        -- @-others
+        ]
+    -- @-node:gcross.20100111215927.1535:Estimator
     -- @+node:gcross.20091216150502.2173:Path
     ,testGroup "Path"
         -- @    @+others
