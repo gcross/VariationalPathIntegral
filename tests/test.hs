@@ -653,31 +653,52 @@ main = defaultMain
             ,testBernoulli "new_weight - old_weight = log 0.1" 0.1 0.1 0.001 $ decideWhetherToAcceptChange 0 (log 0.1)
             -- @-node:gcross.20100107114651.1479:new_weight - old_weight = log 0.1
             -- @+node:gcross.20100109140101.1529:effectively samples linear distribution
-            ,testGroup "effectively samples linear distribution" $
-                let computeNextPosition previous_position = do
-                        next_position <- randomIO
-                        accept <- decideWhetherToAcceptChange (log previous_position) (log next_position)
-                        return . (id &&& id) $
-                            if accept
-                                then next_position
-                                else previous_position
-                in  [testWalkDistribution "cumulative distribution = x^2 (correct, should succeed)" (\x -> x*x) 40000 0.001 (return 0) computeNextPosition
-                    ,antiTest $ testWalkDistribution "cumulative distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 40000 0.01 (return 0) computeNextPosition
-                    ]
+            -- @+at
+            --  ,testGroup "effectively samples linear distribution" $
+            --      let computeNextPosition previous_position = do
+            --              next_position <- randomIO
+            --              accept <- decideWhetherToAcceptChange (log 
+            --  previous_position) (log next_position)
+            --              return . (id &&& id) $
+            --                  if accept
+            --                      then next_position
+            --                      else previous_position
+            --      in  [testWalkDistribution "cumulative distribution = x^2 
+            --  (correct, should succeed)" (\x -> x*x) 40000 0.001 (return 0) 
+            --  computeNextPosition
+            --          ,antiTest $ testWalkDistribution "cumulative 
+            --  distribution = x^2.1 (false, should fail)" (\x -> x**2.1) 
+            --  40000 0.01 (return 0) computeNextPosition
+            --          ]
+            -- @-at
+            -- @@c
             -- @-node:gcross.20100109140101.1529:effectively samples linear distribution
             -- @+node:gcross.20100109140101.1533:effectively samples harmonic oscillator ground state
-            ,testGroup "effectively samples harmonic oscillator ground state" $
-                let computeWeight = (2*) . compute_trial_weight (fromList [1]) . fromListWithShape (shape2 1 1) . (:[])
-                    computeNextPosition previous_position = do
-                        next_position <- fmap ((previous_position+).(0.5-).(*1)) randomIO
-                        accept <- decideWhetherToAcceptChange (computeWeight previous_position) (computeWeight next_position)
-                        return . (id &&& id) $
-                            if accept
-                                then next_position
-                                else previous_position
-                in  [testWalkDistribution "cumulative distribution = erf (correct, should succeed)" ((/2).(+1).erf) 40000 0.0001 (return 0) computeNextPosition
-                    ,antiTest $ testWalkDistribution "cumulative distribution = erf*1.1 (correct, should succeed)" ((**1.1).(/2).(+1).erf) 40000 0.001 (return 0) computeNextPosition
-                    ]
+            -- @+at
+            --  ,testGroup "effectively samples harmonic oscillator ground 
+            --  state" $
+            --      let computeWeight = (2*) . compute_trial_weight (fromList 
+            --  [1]) . fromListWithShape (shape2 1 1) . (:[])
+            --          computeNextPosition previous_position = do
+            --              next_position <- fmap 
+            --  ((previous_position+).(0.5-).(*1)) randomIO
+            --              accept <- decideWhetherToAcceptChange 
+            --  (computeWeight previous_position) (computeWeight 
+            --  next_position)
+            --              return . (id &&& id) $
+            --                  if accept
+            --                      then next_position
+            --                      else previous_position
+            --      in  [testWalkDistribution "cumulative distribution = erf 
+            --  (correct, should succeed)" ((/2).(+1).erf) 40000 0.0001 
+            --  (return 0) computeNextPosition
+            --          ,antiTest $ testWalkDistribution "cumulative 
+            --  distribution = erf*1.1 (correct, should succeed)" 
+            --  ((**1.1).(/2).(+1).erf) 40000 0.001 (return 0) 
+            --  computeNextPosition
+            --          ]
+            -- @-at
+            -- @@c
             -- @-node:gcross.20100109140101.1533:effectively samples harmonic oscillator ground state
             -- @-others
             ]
