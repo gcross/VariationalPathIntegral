@@ -9,39 +9,19 @@ module VPI.Thermalize where
 import Control.Applicative
 import Control.Monad
 
+import Data.Function
+
 import System.Random
 
 import VPI.Path
+import VPI.Physics
+import VPI.Sliceable
 import VPI.Subrangeable
 import VPI.Updatable
 -- @-node:gcross.20100107114651.1452:<< Import needed modules >>
 -- @nl
 
 -- @+others
--- @+node:gcross.20100111122429.2009:Types
--- @+node:gcross.20100111122429.2011:Configuration
-data Configuration potential = Configuration
-        {   configurationPath :: !Path
-        ,   configurationPotential :: !potential
-        }
--- @-node:gcross.20100111122429.2011:Configuration
--- @-node:gcross.20100111122429.2009:Types
--- @+node:gcross.20100111122429.2012:Instances
--- @+node:gcross.20100111122429.2054:Subrangeable (Configuration potential)
-instance Subrangeable potential => Subrangeable (Configuration potential) where
-    subrange start_slice end_slice =
-        liftA2 Configuration
-            (subrange start_slice end_slice . configurationPath)
-            (subrange start_slice end_slice . configurationPotential)
--- @-node:gcross.20100111122429.2054:Subrangeable (Configuration potential)
--- @+node:gcross.20100111122429.2013:Updatable (Configuration potential)
-instance Updatable potential => Updatable (Configuration potential) where
-    update (Configuration old_path old_potential) start_slice (Configuration updated_path updated_potential) =
-        Configuration
-            (update old_path start_slice updated_path)
-            (update old_potential start_slice updated_potential)
--- @-node:gcross.20100111122429.2013:Updatable (Configuration potential)
--- @-node:gcross.20100111122429.2012:Instances
 -- @+node:gcross.20100111122429.2010:Functions
 -- @+node:gcross.20100107114651.1451:decideWhetherToAcceptChange
 decideWhetherToAcceptChange :: Double -> Double -> IO Bool
@@ -49,13 +29,12 @@ decideWhetherToAcceptChange old_weight new_weight = fmap (< exp (new_weight-old_
 -- @-node:gcross.20100107114651.1451:decideWhetherToAcceptChange
 -- @+node:gcross.20100111122429.2008:thermalize
 thermalize ::
-    (Updatable potential, Subrangeable potential) =>
     (Path -> IO (Int,Path)) ->
-    (Path -> potential) ->
-    (Int -> potential -> Double) ->
+    (Path -> Potential) ->
+    (Int -> Configuration -> Double) ->
     (PathSlice -> Double) ->
-    Configuration potential ->
-    IO (Configuration potential)
+    Configuration ->
+    IO Configuration
 thermalize
     generateMove
     computePotential
@@ -63,43 +42,46 @@ thermalize
     computeTrialWeight
     old_configuration@(Configuration path potential)
    = do (start_slice,proposed_path) <- generateMove path
-        let proposed_potential = computePotential proposed_path
+        let proposed_configuration =
+                Configuration proposed_path (computePotential proposed_path)
             end_slice = start_slice + pathLength proposed_path
-            current_path = subrange start_slice end_slice path
-            current_potential = subrange start_slice end_slice potential
+            current_configuration = subrange start_slice end_slice old_configuration
 
             computePathWeight = liftA2 (+) computeFirstSliceWeight computeLastSliceWeight
               where
                 computeFirstSliceWeight =
                     if start_slice == 0
-                        then computeTrialWeight . firstPathSlice
+                        then computeTrialWeight . firstSlice
                         else const 0
                 computeLastSliceWeight =
                     if end_slice == pathLength path
-                        then computeTrialWeight . lastPathSlice
+                        then computeTrialWeight . lastSlice
                         else const 0
 
             computePotentialWeight = computeGreensFunction start_slice
 
-        accept <- decideWhetherToAcceptChange
-                    (computePathWeight current_path + computePotentialWeight current_potential)
-                    (computePathWeight proposed_path + computePotentialWeight proposed_potential)
+            computeConfigurationWeight =
+                liftA2 (+)
+                    (computePathWeight . configurationPath)
+                    computePotentialWeight
+
+        accept <- (decideWhetherToAcceptChange `on` computeConfigurationWeight)
+                    current_configuration
+                    proposed_configuration
         return $
             if accept
-                then Configuration (update path start_slice proposed_path)
-                                   (update potential start_slice proposed_potential)
+                then update old_configuration start_slice proposed_configuration
                 else old_configuration
 -- @-node:gcross.20100111122429.2008:thermalize
 -- @+node:gcross.20100111122429.2055:thermalizeRepeatedly
 thermalizeRepeatedly ::
-    (Updatable potential, Subrangeable potential) =>
     (Path -> IO (Int,Path)) ->
-    (Path -> potential) ->
-    (Int -> potential -> Double) ->
+    (Path -> Potential) ->
+    (Int -> Configuration -> Double) ->
     (PathSlice -> Double) ->
     Int ->
-    Configuration potential ->
-    IO (Configuration potential)
+    Configuration ->
+    IO Configuration
 thermalizeRepeatedly _ _ _ _ 0 = return
 
 thermalizeRepeatedly

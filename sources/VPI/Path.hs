@@ -5,6 +5,7 @@
 -- @<< Language extensions >>
 -- @+node:gcross.20091217090302.1337:<< Language extensions >>
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeFamilies #-}
 -- @nonl
 -- @-node:gcross.20091217090302.1337:<< Language extensions >>
 -- @nl
@@ -24,7 +25,10 @@ import Data.Vec ((:.)(..),get,n0,n1,n2)
 
 import System.IO.Unsafe
 
+import Test.QuickCheck.Gen
+
 import VPI.Fortran.Path
+import VPI.Sliceable
 import VPI.Subrangeable
 import VPI.Updatable
 -- @nonl
@@ -48,6 +52,24 @@ data PathSlice = PathSlice
 -- @-node:gcross.20100107114651.1435:PathSlice
 -- @-node:gcross.20091211140304.1695:Types
 -- @+node:gcross.20100111122429.1486:Instances
+-- @+node:gcross.20100111215927.1579:Sliceable
+instance Sliceable Path where
+    type SliceResult Path = PathSlice
+    slice slice_number path
+      | slice_number < 0
+        = error $ "Negative slice number: " ++ show slice_number
+      | slice_number >= pathNumberOfSlices path
+        = error $ "Slice number is greater than size of the path: " ++ show slice_number ++ " > " ++ show (pathNumberOfSlices path)
+      | otherwise
+        = let slice_cut = Index slice_number :. ()
+          in PathSlice
+                {   pathSliceNumber = slice_number
+                ,   pathSliceParticlePositions = cut slice_cut (pathParticlePositions path)
+                ,   pathSliceParticleSeparations = cut slice_cut (pathParticleSeparations path)
+                }
+
+    numberOfSlices = pathNumberOfSlices
+-- @-node:gcross.20100111215927.1579:Sliceable
 -- @+node:gcross.20100111122429.2050:Subrangeable
 instance Subrangeable Path where
     subrange start_slice end_slice (Path positions separations) =
@@ -89,29 +111,14 @@ pathNumberOfParticles = get n1 . ndarrayShape . pathParticlePositions
 
 pathNumberOfDimensions :: Path -> Int
 pathNumberOfDimensions = get n2 . ndarrayShape . pathParticlePositions
--- @+node:gcross.20100107114651.1436:slicePath
-slicePath :: Int -> Path -> PathSlice
-slicePath slice_number path
-  | slice_number < 0
-    = error $ "Negative slice number: " ++ show slice_number
-  | slice_number >= pathNumberOfSlices path
-    = error $ "Slice number is greater than size of the path: " ++ show slice_number ++ " > " ++ show (pathNumberOfSlices path)
-  | otherwise
-    = let slice = Index slice_number :. All :. All :. ()
-      in PathSlice
-            {   pathSliceNumber = slice_number
-            ,   pathSliceParticlePositions = cut slice (pathParticlePositions path)
-            ,   pathSliceParticleSeparations = cut slice (pathParticleSeparations path)
-            }
--- @-node:gcross.20100107114651.1436:slicePath
 -- @-node:gcross.20100106124611.2083:(queries)
--- @+node:gcross.20100111122429.2014:firstPathSlice / lastPathSlice
-firstPathSlice :: Path -> PathSlice
-firstPathSlice = slicePath 0
-
-lastPathSlice :: Path -> PathSlice
-lastPathSlice path = slicePath (pathLength path - 1) path
--- @-node:gcross.20100111122429.2014:firstPathSlice / lastPathSlice
+-- @+node:gcross.20100111215927.1560:arbitraryPath
+arbitraryPath :: Int -> Int -> Int -> Gen Double -> Gen Path
+arbitraryPath number_of_slices number_of_particles number_of_dimensions generator =
+    fmap makePathFromPositions (
+        arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) generator
+    )
+-- @-node:gcross.20100111215927.1560:arbitraryPath
 -- @-node:gcross.20091216150502.1731:Functions
 -- @-others
 -- @-node:gcross.20091211140304.1694:@thin Path.hs

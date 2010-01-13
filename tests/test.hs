@@ -46,7 +46,12 @@ import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
 import VPI.Fortran.Physics.HarmonicOscillator
 import VPI.Estimator
+import VPI.Observable
+import VPI.Observable.Energy
 import VPI.Path
+import VPI.Physics
+import VPI.Physics.HarmonicOscillator
+import VPI.Sliceable
 import VPI.Subrangeable
 import VPI.Thermalize
 import VPI.Updatable
@@ -367,6 +372,36 @@ main = defaultMain
         -- @-others
         ]
     -- @-node:gcross.20100111215927.1535:Estimator
+    -- @+node:gcross.20100111215927.1546:Observables
+    ,testGroup "Observables"
+        -- @    @+others
+        -- @+node:gcross.20100111215927.1547:Energy
+        [testProperty "Energy" $ do
+            number_of_slices <- choose (2,5)
+            number_of_particles <- choose (1,5)
+            number_of_dimensions <- choose (1,3)
+            number_of_paths <- choose (1,10)
+            let coefficients = fromList (replicate number_of_dimensions 1)
+            configurations <- vectorOf number_of_paths
+                              .
+                              fmap (makeConfigurationFromPath (computePotential coefficients))
+                              $
+                              arbitraryPath number_of_slices number_of_particles number_of_dimensions (choose (0,1))
+            let (mean,variance) = unsafePerformIO $ do
+                    Observable updateObservable summarizeObservable
+                        <- createEnergyObservable
+                            0.5
+                            (computeTrialDerivatives coefficients)
+                    mapM_ updateObservable configurations
+                    summarizeObservable
+            return $
+                mean == (fromIntegral number_of_particles*fromIntegral number_of_dimensions*0.5)
+                &&
+                variance == 0
+        -- @-node:gcross.20100111215927.1547:Energy
+        -- @-others
+        ]
+    -- @-node:gcross.20100111215927.1546:Observables
     -- @+node:gcross.20091216150502.2173:Path
     ,testGroup "Path"
         -- @    @+others
@@ -440,10 +475,10 @@ main = defaultMain
             start_slice <- choose (0,number_of_slices-2)
             end_slice <- choose (start_slice+1,number_of_slices-1)
             let number_of_slices_to_update = end_slice-start_slice+1
-            old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) arbitrary
-            old_particle_separations <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_particles) arbitrary
-            updated_particle_positions <- arbitraryNDArray (shape3 number_of_slices_to_update number_of_particles number_of_dimensions) arbitrary
-            updated_particle_separations <- arbitraryNDArray (shape3 number_of_slices_to_update number_of_particles number_of_particles) arbitrary
+            Path old_particle_positions old_particle_separations
+                <- arbitraryPath number_of_slices number_of_particles number_of_dimensions arbitrary
+            Path updated_particle_positions updated_particle_separations
+                <- arbitraryPath number_of_slices_to_update number_of_particles number_of_dimensions arbitrary
             let Path new_particle_positions new_particle_separations =
                     update (Path old_particle_positions old_particle_separations)
                            start_slice
@@ -486,55 +521,112 @@ main = defaultMain
         -- @+node:gcross.20100105133218.1559:Harmonic Oscillator
         [testGroup "Harmonic Oscillator"
             -- @    @+others
-            -- @+node:gcross.20100105133218.1564:correct energy
-            [testGroup "correct energy"
+            -- @+node:gcross.20100112190325.1562:correct potential
+            [testProperty "correct potential" $ do
+                number_of_slices <- choose (2,5)
+                number_of_particles <- choose (1,5)
+                number_of_dimensions <- choose (1,3)
+                coefficients <- arbitraryNDArray (shape1 number_of_dimensions) (choose (0,1))
+                path <- arbitraryPath number_of_slices number_of_particles number_of_dimensions (choose (0,1))
+                let potential_as_list = toList . unwrapPotential . computePotential coefficients $ path
+                    correct_potential_as_list =
+                        [   (/2)
+                            .
+                            sum
+                            .
+                            zipWith (*) (toList coefficients)
+                            $
+                            [   sum
+                                .
+                                map (\x -> x*x)
+                                .
+                                toList
+                                .
+                                cut (Index slice_index :. All :. Index dimension_index :. ())
+                                .
+                                pathParticlePositions
+                                $
+                                path
+                            |dimension_index <- [0..number_of_dimensions-1]
+                            ]
+                       |slice_index <- [0..number_of_slices-1]
+                       ]
+                return $ potential_as_list == correct_potential_as_list
+            -- @-node:gcross.20100112190325.1562:correct potential
+            -- @+node:gcross.20100111215927.1839:correct energy
+            ,testGroup "correct energy"
                 -- @    @+others
-                -- @+node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
-                [testProperty "single particle, single dimension, unit coefficient" $ do
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
-                    let coefficients = fromList [1]
-                        particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
-                        (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                    return $ 0.5 ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
-                -- @-node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
-                -- @+node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
-                ,testProperty "single particle, single dimension, random coefficient" $ do
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
-                    Positive coefficient <- arbitrary
-                    let coefficients = fromList [coefficient]
-                        particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
-                        (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                    return $ (0.5*coefficient) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
-                -- @-node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
-                -- @+node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
-                ,testProperty "single particle, multiple dimensions, random coefficients" $ do
-                    number_of_dimensions <- choose (1,10)
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 1 number_of_dimensions) (choose (0,1))
-                    coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
-                    let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
-                        (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                    return $ (0.5*N.sum coefficients) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
-                -- @-node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
-                -- @+node:gcross.20100105133218.1576:single particle, multiple dimension, random coefficients
-                ,testProperty "multiple particles, multiple dimensions, random coefficients" $ do
-                    number_of_dimensions <- choose (1,10)
-                    number_of_particles <- choose (1,10)
-                    particle_positions_3darray <- arbitraryNDArray (shape3 1 number_of_particles number_of_dimensions) (choose (0,1))
-                    coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
-                    let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
-                        potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
-                        (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                    return $
-                        (0.5*(fromIntegral number_of_particles)*N.sum coefficients)
-                        ~=
-                        (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
-                -- @-node:gcross.20100105133218.1576:single particle, multiple dimension, random coefficients
+                -- @+node:gcross.20100105133218.1564:via Fortran correct_energy function
+                [testGroup "via Fortran correct_energy function"
+                    -- @    @+others
+                    -- @+node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
+                    [testProperty "single particle, single dimension, unit coefficient" $ do
+                        particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
+                        let coefficients = fromList [1]
+                            particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
+                            potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
+                            (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
+                        return $ 0.5 ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                    -- @-node:gcross.20100105133218.1563:single particle, single dimension, unit coefficient
+                    -- @+node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
+                    ,testProperty "single particle, single dimension, random coefficient" $ do
+                        particle_positions_3darray <- arbitraryNDArray (shape3 1 1 1) (choose (0,1))
+                        Positive coefficient <- arbitrary
+                        let coefficients = fromList [coefficient]
+                            particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
+                            potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
+                            (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
+                        return $ (0.5*coefficient) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                    -- @-node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
+                    -- @+node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
+                    ,testProperty "single particle, multiple dimensions, random coefficients" $ do
+                        number_of_dimensions <- choose (1,10)
+                        particle_positions_3darray <- arbitraryNDArray (shape3 1 1 number_of_dimensions) (choose (0,1))
+                        coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
+                        let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
+                            potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
+                            (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
+                        return $ (0.5*N.sum coefficients) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                    -- @-node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
+                    -- @+node:gcross.20100105133218.1576:multiple particles, multiple dimension, random coefficients
+                    ,testProperty "multiple particles, multiple dimensions, random coefficients" $ do
+                        number_of_dimensions <- choose (1,10)
+                        number_of_particles <- choose (1,10)
+                        particle_positions_3darray <- arbitraryNDArray (shape3 1 number_of_particles number_of_dimensions) (choose (0,1))
+                        coefficients <- fmap (fromList . map abs) (vectorOf number_of_dimensions (choose (0,1)))
+                        let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
+                            potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
+                            (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
+                        return $
+                            (0.5*(fromIntegral number_of_particles)*N.sum coefficients)
+                            ~=
+                            (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                    -- @-node:gcross.20100105133218.1576:multiple particles, multiple dimension, random coefficients
+                    -- @-others
+                    ]
+                -- @-node:gcross.20100105133218.1564:via Fortran correct_energy function
+                -- @+node:gcross.20100111215927.1840:via computeEnergyAtSlice
+                ,testProperty "via computeEnergyAtSlice" $ do
+                    number_of_slices <- choose (2,5)
+                    number_of_particles <- choose (1,5)
+                    number_of_dimensions <- choose (1,3)
+                    let coefficients = fromList (replicate number_of_dimensions 1)
+                    configuration <- fmap (makeConfigurationFromPath (computePotential coefficients))
+                                     $
+                                     arbitraryPath number_of_slices number_of_particles number_of_dimensions (choose (0,1))
+                    let energies =
+                            map (computeEnergyAtSlice 0.5 (computeTrialDerivatives coefficients)
+                                 .
+                                 flip slice configuration
+                                )
+                                [0..number_of_slices-1]
+                        correct_energy =0.5 * fromIntegral (number_of_particles*number_of_dimensions)
+
+                    return $ all (~= correct_energy) energies
+                -- @-node:gcross.20100111215927.1840:via computeEnergyAtSlice
                 -- @-others
                 ]
-            -- @-node:gcross.20100105133218.1564:correct energy
+            -- @-node:gcross.20100111215927.1839:correct energy
             -- @-others
             ]
         -- @-node:gcross.20100105133218.1559:Harmonic Oscillator

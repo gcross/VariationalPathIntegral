@@ -47,6 +47,7 @@
 </v>
 </v>
 <v t="gcross.20091211140304.1693"><vh>@path VPI</vh>
+<v t="gcross.20100111215927.1515"><vh>@thin Algorithm.hs</vh></v>
 <v t="gcross.20091217090302.1304"><vh>@path Fortran</vh>
 <v t="gcross.20100106124611.1989"><vh>@path GreensFunction</vh>
 <v t="gcross.20100106124611.1996"><vh>@thin SecondOrder.hs</vh></v>
@@ -63,8 +64,11 @@
 <v t="gcross.20091227115154.1353"><vh>@thin HarmonicOscillator.hs</vh></v>
 </v>
 </v>
-<v t="gcross.20100107114651.1440"><vh>@thin Observables.hs</vh></v>
 <v t="gcross.20100107114651.1440"><vh>@thin Estimator.hs</vh></v>
+<v t="gcross.20100111215927.1540"><vh>@thin Observable.hs</vh></v>
+<v t="gcross.20100111215927.1523"><vh>@path Observable</vh>
+<v t="gcross.20100111215927.1524"><vh>@thin Energy.hs</vh></v>
+</v>
 <v t="gcross.20091211140304.1694"><vh>@thin Path.hs</vh></v>
 <v t="gcross.20100107114651.1445"><vh>@path Path</vh>
 <v t="gcross.20100107114651.1444"><vh>@thin Moves.hs</vh></v>
@@ -73,6 +77,7 @@
 <v t="gcross.20100106124611.2072"><vh>@path Physics</vh>
 <v t="gcross.20100106124611.2073"><vh>@thin HarmonicOscillator.hs</vh></v>
 </v>
+<v t="gcross.20100111215927.1571"><vh>@thin Sliceable.hs</vh></v>
 <v t="gcross.20100111122429.2025"><vh>@thin Subrangeable.hs</vh></v>
 <v t="gcross.20100107114651.1450"><vh>@thin Thermalize.hs</vh></v>
 <v t="gcross.20100111122429.1484"><vh>@thin Updatable.hs</vh></v>
@@ -104,5 +109,6 @@
 <t tx="gcross.20100109140101.1539"></t>
 <t tx="gcross.20100109140101.1542"></t>
 <t tx="gcross.20100109140101.1547"></t>
+<t tx="gcross.20100111215927.1523"></t>
 </tnodes>
 </leo_file>

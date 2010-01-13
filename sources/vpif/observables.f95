@@ -9,7 +9,7 @@ contains
 
 !@+others
 !@+node:gcross.20100105133218.1372:compute_energy
-function compute_energy( &
+pure function compute_energy( &
     number_of_particles, number_of_dimensions, &
     hbar_over_2m, &
     potential, &
@@ -30,7 +30,7 @@ function compute_energy( &
 end function
 !@-node:gcross.20100105133218.1372:compute_energy
 !@+node:gcross.20100105133218.1568:compute_energy_subroutine
-subroutine compute_energy_subroutine( &
+pure subroutine compute_energy_subroutine( &
     number_of_particles, number_of_dimensions, &
     hbar_over_2m, &
     potential, &
