@@ -35,15 +35,15 @@ import VPI.Updatable
 -- @+node:gcross.20100106124611.2081:Types
 -- @+node:gcross.20100111215927.1555:Configuration
 data Configuration = Configuration
-        {   configurationPath :: Path
-        ,   configurationPotential :: Potential
+        {   configurationPath :: !Path
+        ,   configurationPotential :: !Potential
         }
 -- @-node:gcross.20100111215927.1555:Configuration
 -- @+node:gcross.20100111215927.1564:ConfigurationSlice
 data ConfigurationSlice = ConfigurationSlice
-        {   configurationSliceNumber :: Int
-        ,   configurationSlicePath :: PathSlice
-        ,   configurationSlicePotential :: Double
+        {   configurationSliceNumber :: !Int
+        ,   configurationSlicePath :: !PathSlice
+        ,   configurationSlicePotential :: !Double
         }
 -- @-node:gcross.20100111215927.1564:ConfigurationSlice
 -- @+node:gcross.20100106124611.2082:Potential
@@ -51,8 +51,8 @@ newtype Potential = Potential { unwrapPotential :: Array1D Double }
 -- @-node:gcross.20100106124611.2082:Potential
 -- @+node:gcross.20100107114651.1439:TrialDerivatives
 data TrialDerivatives = TrialDerivatives
-    {   trialGradient :: Array2D Double
-    ,   trialLaplacian :: Double
+    {   trialGradient :: !(Array2D Double)
+    ,   trialLaplacian :: !Double
     }
 -- @-node:gcross.20100107114651.1439:TrialDerivatives
 -- @-node:gcross.20100106124611.2081:Types

@@ -46,6 +46,7 @@ import VPI.Fortran.Path
 import VPI.Fortran.Path.Moves
 import VPI.Fortran.Physics.HarmonicOscillator
 import VPI.Estimator
+import qualified VPI.Histogram.Position.Integrated1DSlices as Integrated1DSlices
 import VPI.Observable
 import VPI.Observable.Energy
 import VPI.Path
@@ -372,6 +373,62 @@ main = defaultMain
         -- @-others
         ]
     -- @-node:gcross.20100111215927.1535:Estimator
+    -- @+node:gcross.20100114153410.2332:Histograms
+    ,testGroup "Histograms"
+        -- @    @+others
+        -- @+node:gcross.20100114153410.2334:Integrated1DSlices
+        [testGroup "Integrated1DSlices"
+            -- @    @+others
+            -- @+node:gcross.20100114153410.2333:1D sample
+            [testCase "1D sample" $ do
+                histogram <- Integrated1DSlices.createEmptyHistogram 5 [(0,10)]
+                Integrated1DSlices.updateHistogram histogram $
+                    let particle_positions = [1,8.5,5,7]
+                    in PathSlice
+                        undefined
+                        (fromListWithShape (shape2 (length particle_positions) 1) particle_positions)
+                        undefined
+                Integrated1DSlices.updateHistogram histogram $
+                    let particle_positions = [9,1.5,9,9.5]
+                    in PathSlice
+                        undefined
+                        (fromListWithShape (shape2 (length particle_positions) 1) particle_positions)
+                        undefined
+                Integrated1DSlices.summarizeHistogram histogram
+                    >>=
+                    assertEqual
+                        "Is the resulting histogram correct?"
+                        [[(1,0.25),(3,0),(5,0.125),(7,0.125),(9,0.5)]]
+            -- @-node:gcross.20100114153410.2333:1D sample
+            -- @+node:gcross.20100114153410.2336:2D sample
+            ,testCase "2D sample" $ do
+                histogram <- Integrated1DSlices.createEmptyHistogram 5 [(0,10),(0,10)]
+                Integrated1DSlices.updateHistogram histogram $
+                    let particle_positions = [1,1,8.5,3,5,9,7,5]
+                    in PathSlice
+                        undefined
+                        (fromListWithShape (shape2 (length particle_positions `div` 2) 2) particle_positions)
+                        undefined
+                Integrated1DSlices.updateHistogram histogram $
+                    let particle_positions = [9,0.5,1.5,0.7,9,4.14,9.5,5.5]
+                    in PathSlice
+                        undefined
+                        (fromListWithShape (shape2 (length particle_positions `div` 2) 2) particle_positions)
+                        undefined
+                Integrated1DSlices.summarizeHistogram histogram
+                    >>=
+                    assertEqual
+                        "Is the resulting histogram correct?"
+                        [[(1,0.25),(3,0),(5,0.125),(7,0.125),(9,0.5)]
+                        ,[(1,0.375),(3,0.125),(5,0.375),(7,0),(9,0.125)]
+                        ]
+            -- @-node:gcross.20100114153410.2336:2D sample
+            -- @-others
+            ]
+        -- @-node:gcross.20100114153410.2334:Integrated1DSlices
+        -- @-others
+        ]
+    -- @-node:gcross.20100114153410.2332:Histograms
     -- @+node:gcross.20100111215927.1546:Observables
     ,testGroup "Observables"
         -- @    @+others

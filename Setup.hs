@@ -64,9 +64,13 @@ additional_options =
     ]
 -- @-node:gcross.20091216150502.1722:Additional Options
 -- @+node:gcross.20091216150502.1723:Flags
-ghc_flags = [] --["-O2","-fvia-C","-optc=-O3"]
+ghc_debug_flags = []
+ghc_optimized_flags = ["-O2","-fvia-C","-optc=-O3"]
+ghc_flags = ghc_optimized_flags
 
-flags = ["-g"] -- "[-O3","-ffast-math","-funroll-loops"]
+debug_flags = ["-g"]
+optimized_flags = ["-O3","-ffast-math","-funroll-loops"]
+flags = optimized_flags
 gcc_flags = flags
 gfortran_flags = "-cpp":"-fimplicit-none":"-fbounds-check":flags
 -- @-node:gcross.20091216150502.1723:Flags
@@ -82,7 +86,6 @@ main =
            (("","tests")
            ,[]
            ,["HUnit == 1.*"
-            ,"QuickCheck == 2.*"
             ,"test-framework == 0.2.*"
             ,"test-framework-hunit == 0.2.*"
             ,"test-framework-quickcheck2 == 0.2.*"

@@ -6,7 +6,11 @@ module VPI.Algorithm where
 
 -- @<< Import needed modules >>
 -- @+node:gcross.20100111215927.1518:<< Import needed modules >>
-import VPI.
+import Control.Monad
+
+import VPI.Path
+import VPI.Physics
+import VPI.Thermalize
 -- @nonl
 -- @-node:gcross.20100111215927.1518:<< Import needed modules >>
 -- @nl
@@ -19,7 +23,7 @@ runSimulation ::
     (Path -> Potential) ->
     (Int -> Configuration -> Double) ->
     (PathSlice -> Double) ->
-    (Configuration -> IO ())
+    (Configuration -> IO ()) ->
     Int ->
     Int ->
     Int ->
@@ -51,7 +55,7 @@ runSimulation
         >=>
         \thermalized_configuration ->
             updateObservables thermalized_configuration
-            >>=
+            >>
             go (n-1) thermalized_configuration
 -- @-node:gcross.20100111215927.1516:runSimulation
 -- @-node:gcross.20100111215927.1517:Functions

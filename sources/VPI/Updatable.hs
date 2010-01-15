@@ -36,7 +36,7 @@ class Updatable a where
 -- @-node:gcross.20100111122429.1745:Classes
 -- @+node:gcross.20100111122429.1998:Instances
 -- @+node:gcross.20100111122429.1999:Updatable (NDArray)
-instance (Indexable indexType, Storable dataType, V.Fold indexType Int, V.Head indexType Int, Eq indexType) => Updatable (NDArray indexType dataType) where
+instance (Show indexType, Indexable indexType, Storable dataType, V.Fold indexType Int, V.Head indexType Int, Eq indexType) => Updatable (NDArray indexType dataType) where
     update old_ndarray update_start_slice updated_ndarray
        | (old_shape == updated_shape) && (update_start_slice == 0)
           = updated_ndarray
