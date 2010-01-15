@@ -7,6 +7,7 @@ module VPI.Observable where
 -- @<< Import needed modules >>
 -- @+node:gcross.20100111215927.1541:<< Import needed modules >>
 import Control.Applicative
+import Control.Parallel.Strategies
 
 import Data.IORef
 

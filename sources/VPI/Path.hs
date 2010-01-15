@@ -28,10 +28,7 @@ import System.IO.Unsafe
 import Test.QuickCheck.Gen
 
 import VPI.Fortran.Path
-import VPI.Sliceable
-import VPI.Subrangeable
-import VPI.Updatable
--- @nonl
+import VPI.Spliceable
 -- @-node:gcross.20091211140304.1697:<< Import needed modules >>
 -- @nl
 
@@ -45,15 +42,15 @@ data Path = Path
 -- @-node:gcross.20091211140304.1696:Path
 -- @+node:gcross.20100107114651.1435:PathSlice
 data PathSlice = PathSlice
-    {   pathSliceNumber :: !Int
+    {   pathSliceNumber :: Int
     ,   pathSliceParticlePositions :: !(Array2D Double)
     ,   pathSliceParticleSeparations :: Array2D Double
     }
 -- @-node:gcross.20100107114651.1435:PathSlice
 -- @-node:gcross.20091211140304.1695:Types
 -- @+node:gcross.20100111122429.1486:Instances
--- @+node:gcross.20100111215927.1579:Sliceable
-instance Sliceable Path where
+-- @+node:gcross.20100111215927.1579:Spliceable
+instance Spliceable Path where
     type SliceResult Path = PathSlice
     slice slice_number path
       | slice_number < 0
@@ -67,21 +64,16 @@ instance Sliceable Path where
                 ,   pathSliceParticlePositions = cut slice_cut (pathParticlePositions path)
                 ,   pathSliceParticleSeparations = cut slice_cut (pathParticleSeparations path)
                 }
-
-    numberOfSlices = pathNumberOfSlices
--- @-node:gcross.20100111215927.1579:Sliceable
--- @+node:gcross.20100111122429.2050:Subrangeable
-instance Subrangeable Path where
-    subrange start_slice end_slice (Path positions separations) =
+    subrange_ start_slice end_slice (Path positions separations) =
         Path (cut (Range start_slice end_slice :. ()) positions)
              (cut (Range start_slice end_slice :. ()) separations)
--- @-node:gcross.20100111122429.2050:Subrangeable
--- @+node:gcross.20100111122429.1487:Updatable
-instance Updatable Path where
+
     update (Path old_particle_positions old_particle_separations) update_start_slice (Path updated_particle_positions updated_particle_separations) =
-        Path (update old_particle_positions update_start_slice updated_particle_positions)
-             (update old_particle_separations update_start_slice updated_particle_separations)
--- @-node:gcross.20100111122429.1487:Updatable
+        Path (updateNDArray old_particle_positions update_start_slice updated_particle_positions)
+             (updateNDArray old_particle_separations update_start_slice updated_particle_separations)
+
+    numberOfSlices = pathNumberOfSlices
+-- @-node:gcross.20100111215927.1579:Spliceable
 -- @-node:gcross.20100111122429.1486:Instances
 -- @+node:gcross.20091216150502.1731:Functions
 -- @+node:gcross.20091216150502.1732:createInitialPath

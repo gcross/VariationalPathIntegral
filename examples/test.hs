@@ -20,8 +20,7 @@ import VPI.Path
 import VPI.Path.Moves
 import VPI.Physics
 import qualified VPI.Physics.HarmonicOscillator as HarmonicOscillator
-import VPI.Sliceable
-import VPI.Subrangeable
+import VPI.Spliceable
 -- @-node:gcross.20100114153410.1567:<< Import needed modules >>
 -- @nl
 

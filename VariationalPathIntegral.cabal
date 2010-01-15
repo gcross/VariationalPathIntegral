@@ -24,7 +24,8 @@ Library
                     InfixApplicative == 1.*,
                     Vec == 0.9.*,
                     NDArray >= 0.1,
-                    QuickCheck == 2.1.*
+                    QuickCheck == 2.1.*,
+                    parallel == 2.2.*
 
     Extra-Libraries: gfortran, blas
 -- @-node:gcross.20091212120817.1727:@thin VariationalPathIntegral.cabal

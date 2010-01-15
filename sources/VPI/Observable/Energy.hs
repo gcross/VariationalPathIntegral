@@ -15,7 +15,7 @@ import VPI.Fortran.Observables
 import VPI.Observable
 import VPI.Path
 import VPI.Physics
-import VPI.Sliceable
+import VPI.Spliceable
 -- @-node:gcross.20100111215927.1525:<< Import needed modules >>
 -- @nl
 

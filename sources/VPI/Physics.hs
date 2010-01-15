@@ -25,9 +25,7 @@ import Foreign.Marshal.Array
 import Foreign.Storable
 
 import VPI.Path
-import VPI.Sliceable
-import VPI.Subrangeable
-import VPI.Updatable
+import VPI.Spliceable
 -- @-node:gcross.20100106124611.2078:<< Import needed modules >>
 -- @nl
 
@@ -41,9 +39,9 @@ data Configuration = Configuration
 -- @-node:gcross.20100111215927.1555:Configuration
 -- @+node:gcross.20100111215927.1564:ConfigurationSlice
 data ConfigurationSlice = ConfigurationSlice
-        {   configurationSliceNumber :: !Int
+        {   configurationSliceNumber :: Int
         ,   configurationSlicePath :: !PathSlice
-        ,   configurationSlicePotential :: !Double
+        ,   configurationSlicePotential :: Double
         }
 -- @-node:gcross.20100111215927.1564:ConfigurationSlice
 -- @+node:gcross.20100106124611.2082:Potential
@@ -57,51 +55,32 @@ data TrialDerivatives = TrialDerivatives
 -- @-node:gcross.20100107114651.1439:TrialDerivatives
 -- @-node:gcross.20100106124611.2081:Types
 -- @+node:gcross.20100111122429.1739:Instances
--- @+node:gcross.20100111215927.1584:Sliceable
--- @+node:gcross.20100111215927.1585:Configuration
-instance Sliceable Configuration where
+-- @+node:gcross.20100111215927.1585:Spliceable Configuration
+instance Spliceable Configuration where
     type SliceResult Configuration = ConfigurationSlice
     slice index =
         liftA2 (ConfigurationSlice index)
             (slice index . configurationPath)
             (slice index . configurationPotential)
-    numberOfSlices = numberOfSlices . configurationPath
--- @-node:gcross.20100111215927.1585:Configuration
--- @+node:gcross.20100111215927.1587:Potential
-instance Sliceable Potential where
-    type SliceResult Potential = Double
-    slice index = (! i1 index) . unwrapPotential
-    numberOfSlices = V.head . ndarrayShape . unwrapPotential
--- @nonl
--- @-node:gcross.20100111215927.1587:Potential
--- @-node:gcross.20100111215927.1584:Sliceable
--- @+node:gcross.20100111215927.1551:Subrangeable
--- @+node:gcross.20100111215927.1553:Configuration
-instance Subrangeable Configuration where
-    subrange start_slice end_slice =
+    subrange_ start_slice end_slice =
         liftA2 Configuration
             (subrange start_slice end_slice . configurationPath)
             (subrange start_slice end_slice . configurationPotential)
--- @-node:gcross.20100111215927.1553:Configuration
--- @+node:gcross.20100111122429.2052:Potential
-instance Subrangeable Potential where
-    subrange start_slice end_slice = Potential . cut (Range start_slice end_slice :. ()) . unwrapPotential
--- @-node:gcross.20100111122429.2052:Potential
--- @-node:gcross.20100111215927.1551:Subrangeable
--- @+node:gcross.20100111215927.1548:Updatable
--- @+node:gcross.20100111122429.1740:Potential
-instance Updatable Potential where
-    update (Potential old_potential) start_slice (Potential updated_potential) =
-        Potential $ update old_potential start_slice updated_potential
--- @-node:gcross.20100111122429.1740:Potential
--- @+node:gcross.20100111215927.1550:Configuration
-instance Updatable Configuration where
     update (Configuration old_path old_potential) start_slice (Configuration updated_path updated_potential) =
         Configuration
             (update old_path start_slice updated_path)
             (update old_potential start_slice updated_potential)
--- @-node:gcross.20100111215927.1550:Configuration
--- @-node:gcross.20100111215927.1548:Updatable
+    numberOfSlices = numberOfSlices . configurationPath
+-- @-node:gcross.20100111215927.1585:Spliceable Configuration
+-- @+node:gcross.20100111215927.1587:Spliceable Potential
+instance Spliceable Potential where
+    type SliceResult Potential = Double
+    slice index = (! i1 index) . unwrapPotential
+    subrange_ start_slice end_slice = Potential . cut (Range start_slice end_slice :. ()) . unwrapPotential
+    update (Potential old_potential) start_slice (Potential updated_potential) =
+        Potential $ updateNDArray old_potential start_slice updated_potential
+    numberOfSlices = V.head . ndarrayShape . unwrapPotential
+-- @-node:gcross.20100111215927.1587:Spliceable Potential
 -- @-node:gcross.20100111122429.1739:Instances
 -- @+node:gcross.20100111215927.1558:Functions
 -- @+node:gcross.20100111215927.1559:makeConfigurationFromPath

@@ -15,9 +15,8 @@ import System.Random
 
 import VPI.Path
 import VPI.Physics
-import VPI.Sliceable
-import VPI.Subrangeable
-import VPI.Updatable
+import VPI.Spliceable
+
 -- @-node:gcross.20100107114651.1452:<< Import needed modules >>
 -- @nl
 

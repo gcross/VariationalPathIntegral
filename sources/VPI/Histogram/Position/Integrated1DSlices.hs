@@ -19,7 +19,7 @@ import Data.Vec ((:.)(..))
 import VPI.Fortran.Histograms.Position
 import VPI.Path
 import VPI.Physics
-import VPI.Sliceable
+import VPI.Spliceable
 -- @-node:gcross.20100114153410.1607:<< Import needed modules >>
 -- @nl
 

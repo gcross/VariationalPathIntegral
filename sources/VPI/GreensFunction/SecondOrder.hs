@@ -4,6 +4,7 @@
 
 -- @<< Language extensions >>
 -- @+node:gcross.20100114153410.1582:<< Language extensions >>
+{-# LANGUAGE TypeFamilies #-}
 -- @-node:gcross.20100114153410.1582:<< Language extensions >>
 -- @nl
 
@@ -14,12 +15,14 @@ module VPI.GreensFunction.SecondOrder where
 import Data.NDArray
 import Data.NDArray.Classes
 import Data.NDArray.Cuts
+import Data.NDArray.Indexable
 import Data.Vec ((:.)(..))
+import qualified Data.Vec as V
 
 import VPI.Fortran.GreensFunction.SecondOrder
 import VPI.Path
 import VPI.Physics
-import VPI.Subrangeable
+import VPI.Spliceable
 -- @-node:gcross.20100114153410.1583:<< Import needed modules >>
 -- @nl
 
@@ -30,10 +33,15 @@ newtype Weights = Weights { unwrapWeights :: Array1D Double }
 -- @-node:gcross.20100114153410.1587:Weights
 -- @-node:gcross.20100114153410.1586:Types
 -- @+node:gcross.20100114153410.1594:Instances
--- @+node:gcross.20100114153410.1597:Subrangeable Weights
-instance Subrangeable Weights where
-    subrange start_slice end_slice = Weights . cut (Range start_slice end_slice :. ()) . unwrapWeights
--- @-node:gcross.20100114153410.1597:Subrangeable Weights
+-- @+node:gcross.20100114153410.1597:Spliceable Weights
+instance Spliceable Weights where
+    type SliceResult Weights = Double
+    slice index = (! i1 index) . unwrapWeights
+    subrange_ start_slice end_slice = Weights . cut (Range start_slice end_slice :. ()) . unwrapWeights
+    update (Weights old_weights) start_slice (Weights updated_weights) =
+        Weights $ updateNDArray old_weights start_slice updated_weights
+    numberOfSlices = V.head . ndarrayShape . unwrapWeights
+-- @-node:gcross.20100114153410.1597:Spliceable Weights
 -- @-node:gcross.20100114153410.1594:Instances
 -- @+node:gcross.20100114153410.1584:Functions
 -- @+node:gcross.20100114153410.1585:createWeights
