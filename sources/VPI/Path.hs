@@ -37,13 +37,13 @@ import VPI.Spliceable
 -- @+node:gcross.20091211140304.1696:Path
 data Path = Path
     {   pathParticlePositions :: !(Array3D Double)
-    ,   pathParticleSeparations :: Array3D Double
+    ,   pathParticleSeparations :: !(Array3D Double)
     }
 -- @-node:gcross.20091211140304.1696:Path
 -- @+node:gcross.20100107114651.1435:PathSlice
 data PathSlice = PathSlice
     {   pathSliceNumber :: Int
-    ,   pathSliceParticlePositions :: !(Array2D Double)
+    ,   pathSliceParticlePositions :: Array2D Double
     ,   pathSliceParticleSeparations :: Array2D Double
     }
 -- @-node:gcross.20100107114651.1435:PathSlice

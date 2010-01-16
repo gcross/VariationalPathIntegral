@@ -7,7 +7,8 @@ module VPI.Observable where
 -- @<< Import needed modules >>
 -- @+node:gcross.20100111215927.1541:<< Import needed modules >>
 import Control.Applicative
-import Control.Parallel.Strategies
+import Control.Exception
+import Control.Monad
 
 import Data.IORef
 
@@ -34,7 +35,7 @@ createObservable observe =
     \estimator_ref ->
         return $
             Observable
-                (modifyIORef estimator_ref . flip updateEstimator . observe)
+                (evaluate . observe >=> modifyIORef estimator_ref . flip updateEstimator)
                 (fmap summarizeEstimator (readIORef estimator_ref))
 -- @-node:gcross.20100111215927.1543:createObservable
 -- @-node:gcross.20100111215927.1542:Functions

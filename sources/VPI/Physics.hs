@@ -40,7 +40,7 @@ data Configuration = Configuration
 -- @+node:gcross.20100111215927.1564:ConfigurationSlice
 data ConfigurationSlice = ConfigurationSlice
         {   configurationSliceNumber :: Int
-        ,   configurationSlicePath :: !PathSlice
+        ,   configurationSlicePath :: PathSlice
         ,   configurationSlicePotential :: Double
         }
 -- @-node:gcross.20100111215927.1564:ConfigurationSlice

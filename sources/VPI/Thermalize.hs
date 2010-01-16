@@ -71,6 +71,7 @@ thermalize
             if accept
                 then update old_configuration start_slice proposed_configuration
                 else old_configuration
+
 -- @-node:gcross.20100111122429.2008:thermalize
 -- @+node:gcross.20100111122429.2055:thermalizeRepeatedly
 thermalizeRepeatedly ::
@@ -81,26 +82,23 @@ thermalizeRepeatedly ::
     Int ->
     Configuration ->
     IO Configuration
-thermalizeRepeatedly _ _ _ _ 0 = return
 
 thermalizeRepeatedly
     generateMove
     computePotential
     computeGreensFunction
     computeTrialWeight
-    number_of_times
-    = thermalize
-        generateMove
-        computePotential
-        computeGreensFunction
-        computeTrialWeight
-      >=>
-      thermalizeRepeatedly
-        generateMove
-        computePotential
-        computeGreensFunction
-        computeTrialWeight
-        (number_of_times-1)
+    = go
+  where
+    go 0 = return
+    go n = 
+        thermalize
+            generateMove
+            computePotential
+            computeGreensFunction
+            computeTrialWeight
+        >=>
+        go (n-1) 
 -- @-node:gcross.20100111122429.2055:thermalizeRepeatedly
 -- @-node:gcross.20100111122429.2010:Functions
 -- @-others

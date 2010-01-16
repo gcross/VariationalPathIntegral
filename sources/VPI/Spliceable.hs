@@ -27,6 +27,8 @@ import Foreign.Ptr
 import Foreign.Storable
 
 import System.IO.Unsafe
+
+import Debug.Trace
 -- @-node:gcross.20100111215927.1573:<< Import needed modules >>
 -- @nl
 
