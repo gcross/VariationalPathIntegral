@@ -84,6 +84,9 @@ createInitialPath number_of_slices number_of_particles bounds =
 -- @+node:gcross.20100107114651.1448:computeSeparations
 computeSeparations = compute_separations
 -- @-node:gcross.20100107114651.1448:computeSeparations
+-- @+node:gcross.20100116114537.1614:updateSeparationsForParticle
+updateSeparationsForParticle particle_number = update_separations_for_particle (particle_number+1)
+-- @-node:gcross.20100116114537.1614:updateSeparationsForParticle
 -- @+node:gcross.20100107114651.1449:makePathFromPositions
 makePathFromPositions particle_positions =
     Path

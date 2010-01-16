@@ -37,6 +37,39 @@ subroutine compute_separations( &
 
 end subroutine
 !@-node:gcross.20091216150502.1730:compute_separations
+!@+node:gcross.20100116114537.1609:update_separations_for_particle
+subroutine update_separations_for_particle( &
+    number_of_slices, number_of_particles, number_of_dimensions, &
+    particle_number, &
+    positions, &
+    old_separations, &
+    new_separations &
+)
+    integer, intent(in) ::&
+        number_of_dimensions, number_of_particles, number_of_slices, &
+        particle_number
+    double precision, intent(in) :: &
+        positions(number_of_dimensions, number_of_particles, number_of_slices), &
+        old_separations(number_of_particles, number_of_particles, number_of_slices)
+
+    double precision, intent(out) :: &
+        new_separations(number_of_particles, number_of_particles, number_of_slices)
+
+    integer :: i, j
+    double precision :: d
+
+    new_separations = old_separations
+
+    do i = 1, number_of_slices
+        do j = 1, number_of_particles
+            d = sqrt(sum((positions(:,j,i)-positions(:,particle_number,i))**2))                
+            new_separations(j,particle_number,i) = d
+            new_separations(particle_number,j,i) = d
+        end do
+    end do
+
+end subroutine
+!@-node:gcross.20100116114537.1609:update_separations_for_particle
 !@+node:gcross.20091216150502.1727:create_initial_path
 subroutine create_initial_path( &
     number_of_slices, number_of_particles, number_of_dimensions, &

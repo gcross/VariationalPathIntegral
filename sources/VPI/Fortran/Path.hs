@@ -41,7 +41,7 @@ foreign import ccall unsafe "vpic__path__compute_separations" vpi__path__compute
     Int -> -- number of particles
     Int -> -- number of dimensions
     Ptr (Double) -> -- particle positions
-    Ptr (Double) -> -- particle slices
+    Ptr (Double) -> -- particle separations
     IO ()
 
 compute_separations :: Array3D Double -> Array3D Double
@@ -58,6 +58,35 @@ compute_separations particle_positions =
   where
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
 -- @-node:gcross.20091220132355.1792:compute_separations
+-- @+node:gcross.20100116114537.1612:update_separations_for_particle
+foreign import ccall unsafe "vpic__path__update_separations_for_particle" vpi__path__update_separations_for_particle :: 
+    Int -> -- number of slices
+    Int -> -- number of particles
+    Int -> -- number of dimensions
+    Int -> -- particle number that changed
+    Ptr (Double) -> -- particle positions
+    Ptr (Double) -> -- old particle separations
+    Ptr (Double) -> -- new particle separations
+    IO ()
+
+update_separations_for_particle :: Int -> Array3D Double -> Array3D Double -> Array3D Double
+update_separations_for_particle particle_number particle_positions old_particle_separations =
+    assert (shape3 number_of_slices number_of_particles number_of_particles == ndarrayShape old_particle_separations) $
+    fst . unsafePerformIO $
+    withContiguousNDArray particle_positions $ \p_positions ->
+    withContiguousNDArray old_particle_separations $ \p_old_separations ->
+    withNewNDArray (shape3 number_of_slices number_of_particles number_of_particles) $ \p_new_separations ->
+        vpi__path__update_separations_for_particle
+            number_of_slices
+            number_of_particles
+            number_of_dimensions
+            particle_number
+            p_positions
+            p_old_separations
+            p_new_separations
+  where
+    number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape particle_positions
+-- @-node:gcross.20100116114537.1612:update_separations_for_particle
 -- @+node:gcross.20091226065853.1634:create_initial_path
 foreign import ccall unsafe "vpic__path__create_initial_path" vpi__path__create_initial_path :: 
     Int -> -- number of slices
