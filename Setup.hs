@@ -64,15 +64,24 @@ additional_options =
     ]
 -- @-node:gcross.20091216150502.1722:Additional Options
 -- @+node:gcross.20091216150502.1723:Flags
-ghc_debug_flags = []
-ghc_optimized_flags = ["-O2","-fvia-C","-optc=-O3"]
-ghc_flags = ghc_optimized_flags
+data FlagMode = Debug | Optimized
+flag_mode = Debug
 
-debug_flags = ["-g"]
-optimized_flags = ["-O3","-ffast-math","-funroll-loops"]
-flags = optimized_flags
-gcc_flags = flags
-gfortran_flags = "-cpp":"-fimplicit-none":"-fbounds-check":flags
+ghc_flags =
+    case flag_mode of
+        Debug -> []
+        Optimized -> ["-O2","-fvia-C","-optc=-O3"]
+
+gcc_flags =
+    case flag_mode of
+        Debug -> ["-g"]
+        Optimized -> ["-O3","-ffast-math","-funroll-loops"]
+
+gfortran_flags =
+    ["-cpp","-fimplicit-none"]++gcc_flags++
+    case flag_mode of
+        Debug -> ["-fbounds-check"]
+        Optimized -> []
 -- @-node:gcross.20091216150502.1723:Flags
 -- @-node:gcross.20091216150502.1721:Values
 -- @+node:gcross.20091216150502.1724:main
