@@ -43,15 +43,16 @@ end subroutine
 subroutine brownian_bridge( &
     number_of_slices, number_of_particles, number_of_dimensions, &
     particle_number_to_move, &
-    start_slice, end_slice, &
+    move_leftmost_slice, move_rightmost_slice, &
     hbar_over_2m, time_interval, &
     old_particle_positions, &
     new_particle_positions &
 )
     integer, intent(in) :: &
         number_of_slices, number_of_particles, number_of_dimensions, &
-        particle_number_to_move, &
-        start_slice, end_slice
+        particle_number_to_move
+    logical, intent(in) :: &
+        move_leftmost_slice, move_rightmost_slice
     double precision, intent(in) :: &
         hbar_over_2m, time_interval, &
 old_particle_positions(number_of_dimensions,number_of_particles,number_of_slices)
@@ -59,12 +60,11 @@ old_particle_positions(number_of_dimensions,number_of_particles,number_of_slices
 new_particle_positions(number_of_dimensions,number_of_particles,number_of_slices)
 
     integer :: &
-        start_slice_, end_slice_, &
         current_random_number, &
         slice_number, dimension_
     double precision :: &
         dt, &
-gaussian_random_numbers((end_slice-start_slice+2)*number_of_dimensions), &
+gaussian_random_numbers(number_of_slices*number_of_dimensions), &
         t1, t2, &
         a, b
 
@@ -76,30 +76,28 @@ gaussian_random_numbers((end_slice-start_slice+2)*number_of_dimensions), &
     new_particle_positions(:,particle_number_to_move+1:,:) = &
     old_particle_positions(:,particle_number_to_move+1:,:)
 
-    new_particle_positions(:end_slice_-1,particle_number_to_move,:) = &
-    old_particle_positions(:end_slice_-1,particle_number_to_move,:)
-
-    new_particle_positions(start_slice_+1:,particle_number_to_move,:) = &
-    old_particle_positions(start_slice_+1:,particle_number_to_move,:)
-
     call sample_unit_normal_distribution(size(gaussian_random_numbers),gaussian_random_numbers)
     current_random_number = 1
 
-    if (start_slice <= 1) then
-        call apply_endpoint_move(start_slice,sqrt(dt*(end_slice-1)))
-        start_slice_ = 2
+    if (move_leftmost_slice) then
+        call apply_endpoint_move(1,sqrt(dt*(number_of_slices-1)))
+    else
+        new_particle_positions(:,particle_number_to_move,1) =&
+        old_particle_positions(:,particle_number_to_move,1)
     end if
-    if (end_slice >= number_of_slices) then
-        call apply_endpoint_move(end_slice,sqrt(dt*(number_of_slices-start_slice)))
-        end_slice_ = number_of_slices-1
+    if (move_rightmost_slice) then
+        call apply_endpoint_move(number_of_slices,sqrt(dt*(number_of_slices-1)))
+    else
+        new_particle_positions(:,particle_number_to_move,number_of_slices) =&
+        old_particle_positions(:,particle_number_to_move,number_of_slices)
     end if
 
-    do slice_number = start_slice_, end_slice_
+    do slice_number = 2, number_of_slices-1
         t1 = dt
-        t2 = dt*(end_slice_+1-slice_number)
+        t2 = dt*(number_of_slices-slice_number)
         do dimension_ = 1, number_of_dimensions
-            a = new_particle_positions(slice_number-1,particle_number_to_move,dimension_)
-            b = new_particle_positions(end_slice_+1,particle_number_to_move,dimension_)
+            a = new_particle_positions(dimension_,particle_number_to_move,slice_number-1)
+            b = new_particle_positions(dimension_,particle_number_to_move,number_of_slices)
             call apply_move( &
                 slice_number, &
                 dimension_, &

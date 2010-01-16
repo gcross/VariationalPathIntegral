@@ -60,6 +60,49 @@ rigid particle_number maximum_shift old_particle_positions =
   where
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape old_particle_positions
 -- @-node:gcross.20091227115154.1329:rigid
+-- @+node:gcross.20100116114537.1618:brownian_bridge
+foreign import ccall unsafe "vpic__path__moves__brownian_bridge" vpi__path__moves__brownian_bridge :: 
+    Int -> -- number of slices
+    Int -> -- number of particles
+    Int -> -- number of dimensions
+    Int -> -- particle number to shift
+    Bool -> -- move leftmost slice
+    Bool -> -- move rightmost slice
+    Double -> -- hbar/2m
+    Double -> -- length of time step
+    Ptr (Double) -> -- old particle positions
+    Ptr (Double) -> -- new particle positions
+    IO ()
+
+brownian_bridge ::
+    Double -> Double ->
+    Int ->
+    Bool -> Bool ->
+    Array3D Double ->
+    IO (Array3D Double)
+brownian_bridge
+    hbar_over_2m time_interval
+    particle_number
+    move_leftmost_slice move_rightmost_slice
+    old_particle_positions
+    =
+    fmap fst $
+    withContiguousNDArray old_particle_positions $ \p_old_particle_positions ->
+    withNewNDArray (ndarrayShape old_particle_positions) $ \p_new_particle_positions ->
+        vpi__path__moves__brownian_bridge
+            number_of_slices
+            number_of_particles
+            number_of_dimensions
+            particle_number
+            move_leftmost_slice
+            move_rightmost_slice
+            hbar_over_2m
+            time_interval
+            p_old_particle_positions
+            p_new_particle_positions
+  where
+    number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape old_particle_positions
+-- @-node:gcross.20100116114537.1618:brownian_bridge
 -- @-others
 -- @-node:gcross.20091227115154.1326:@thin Moves.hs
 -- @-leo

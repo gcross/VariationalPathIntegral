@@ -258,6 +258,66 @@ main = defaultMain
                 -- @-others
                 ]
             -- @-node:gcross.20091227115154.1334:rigid
+            -- @+node:gcross.20100116114537.1619:brownian_bridge
+            ,testGroup "brownian_bridge"
+                -- @    @+others
+                -- @+node:gcross.20100116114537.1621:only selected particles and slices are moved
+                [testProperty "only selected particles and slices are moved" $ do
+                    number_of_slices <- choose (2,10)
+                    number_of_particles <- choose (2,10)
+                    number_of_dimensions <- choose (1,10)
+                    particle_number <- choose (1,number_of_particles)
+                    hbar_over_2m <- fmap ((+1e-10).abs) arbitrary
+                    time_interval <- fmap ((+1e-10).abs) arbitrary
+                    move_leftmost_slice <- arbitrary
+                    move_rightmost_slice <- arbitrary
+                    old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
+                    let new_particle_positions =
+                            unsafePerformIO $
+                                brownian_bridge
+                                    hbar_over_2m
+                                    time_interval
+                                    particle_number
+                                    move_leftmost_slice
+                                    move_rightmost_slice
+                                    old_particle_positions
+                    return $
+                        and [ new_particle_positions ! i3 i j k == old_particle_positions ! i3 i j k
+                        | i <- [0..number_of_slices-1]
+                        , j <- [0..number_of_particles-1]
+                        , j /= (particle_number-1)
+                        , k <- [0..number_of_dimensions-1]
+                        ]
+                        &&
+                        and [ new_particle_positions ! i3 i (particle_number-1) k /= old_particle_positions ! i3 i (particle_number-1) k
+                        | i <- [1..number_of_slices-2]
+                        , k <- [0..number_of_dimensions-1]
+                        ]
+                        &&
+                        if move_leftmost_slice
+                            then
+                                and [ new_particle_positions ! i3 0 (particle_number-1) k /= old_particle_positions ! i3 0 (particle_number-1) k
+                                | k <- [0..number_of_dimensions-1]
+                                ]
+                            else
+                                and [ new_particle_positions ! i3 0 (particle_number-1) k == old_particle_positions ! i3 0 (particle_number-1) k
+                                | k <- [0..number_of_dimensions-1]
+                                ]
+                        &&
+                        if move_rightmost_slice
+                            then
+                                and [ new_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k /= old_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k
+                                | k <- [0..number_of_dimensions-1]
+                                ]
+                            else
+                                and [ new_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k == old_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k
+                                | k <- [0..number_of_dimensions-1]
+                                ]
+                -- @nonl
+                -- @-node:gcross.20100116114537.1621:only selected particles and slices are moved
+                -- @-others
+                ]
+            -- @-node:gcross.20100116114537.1619:brownian_bridge
             -- @-others
             ]
         -- @-node:gcross.20091227115154.1331:vpif.path.moves
