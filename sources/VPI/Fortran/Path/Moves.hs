@@ -33,6 +33,16 @@ import System.IO.Unsafe
 -- @nl
 
 -- @+others
+-- @+node:gcross.20100117030121.2097:Types
+-- @+node:gcross.20100117030121.2101:EndpointMoveMode
+data EndpointMoveMode = MoveNeitherEndpoint | MoveLeftEndpoint | MoveRightEndpoint deriving (Enum,Eq)
+-- @-node:gcross.20100117030121.2101:EndpointMoveMode
+-- @+node:gcross.20100117030121.2100:CenterSliceMode
+data CenterSliceMode = NoCenterSlice | DuplicatedCenterSlice | DisconnectedCenterSlice deriving (Enum,Eq)
+-- @nonl
+-- @-node:gcross.20100117030121.2100:CenterSliceMode
+-- @-node:gcross.20100117030121.2097:Types
+-- @+node:gcross.20100117030121.2099:Functions
 -- @+node:gcross.20091227115154.1329:rigid
 foreign import ccall unsafe "vpic__path__moves__rigid" vpi__path__moves__rigid :: 
     Int -> -- number of slices
@@ -65,9 +75,10 @@ foreign import ccall unsafe "vpic__path__moves__brownian_bridge" vpi__path__move
     Int -> -- number of slices
     Int -> -- number of particles
     Int -> -- number of dimensions
-    Int -> -- particle number to shift
-    Bool -> -- move leftmost slice
-    Bool -> -- move rightmost slice
+    Int -> -- particle number to move
+    Int -> -- endpoint move mode (0 = no move, 1 = move left, 2 = move right)
+    Int -> -- center slice mode (0 = no center, 1 = duplicated, 2 = disconnected)
+    Int -> -- center slice number (ignored if mode = 0)
     Double -> -- hbar/2m
     Double -> -- length of time step
     Ptr (Double) -> -- old particle positions
@@ -77,13 +88,15 @@ foreign import ccall unsafe "vpic__path__moves__brownian_bridge" vpi__path__move
 brownian_bridge ::
     Double -> Double ->
     Int ->
-    Bool -> Bool ->
+    EndpointMoveMode ->
+    CenterSliceMode -> Int ->
     Array3D Double ->
     IO (Array3D Double)
 brownian_bridge
     hbar_over_2m time_interval
     particle_number
-    move_leftmost_slice move_rightmost_slice
+    endpoint_move_mode
+    center_slice_mode center_slice_number
     old_particle_positions
     =
     fmap fst $
@@ -94,8 +107,9 @@ brownian_bridge
             number_of_particles
             number_of_dimensions
             particle_number
-            move_leftmost_slice
-            move_rightmost_slice
+            (fromEnum endpoint_move_mode)
+            (fromEnum center_slice_mode)
+            center_slice_number
             hbar_over_2m
             time_interval
             p_old_particle_positions
@@ -103,57 +117,7 @@ brownian_bridge
   where
     number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape old_particle_positions
 -- @-node:gcross.20100116114537.1618:brownian_bridge
--- @+node:gcross.20100116114537.2100:linked_brownian_bridge
-foreign import ccall unsafe "vpic__path__moves__linked_brownian_bridge" vpi__path__moves__linked_brownian_bridge :: 
-    Int -> -- number of slices
-    Int -> -- number of particles
-    Int -> -- number of dimensions
-    Int -> -- particle number to shift
-    Bool -> -- move leftmost slice
-    Bool -> -- move rightmost slice
-    Int -> -- link slice number
-    Bool -> -- duplicate link slice
-    Double -> -- hbar/2m
-    Double -> -- length of time step
-    Ptr (Double) -> -- old particle positions
-    Ptr (Double) -> -- new particle positions
-    IO ()
-
-linked_brownian_bridge ::
-    Bool ->
-    Double -> Double ->
-    Int ->
-    Int ->
-    Bool -> Bool ->
-    Array3D Double ->
-    IO (Array3D Double)
-linked_brownian_bridge
-    duplicate_link_slice
-    hbar_over_2m time_interval
-    link_slice_number
-    particle_number
-    move_leftmost_slice move_rightmost_slice
-    old_particle_positions
-    =
-    fmap fst $
-    withContiguousNDArray old_particle_positions $ \p_old_particle_positions ->
-    withNewNDArray (ndarrayShape old_particle_positions) $ \p_new_particle_positions ->
-        vpi__path__moves__linked_brownian_bridge
-            number_of_slices
-            number_of_particles
-            number_of_dimensions
-            particle_number
-            move_leftmost_slice
-            move_rightmost_slice
-            link_slice_number
-            duplicate_link_slice
-            hbar_over_2m
-            time_interval
-            p_old_particle_positions
-            p_new_particle_positions
-  where
-    number_of_slices :. number_of_particles :. number_of_dimensions :. () = ndarrayShape old_particle_positions
--- @-node:gcross.20100116114537.2100:linked_brownian_bridge
+-- @-node:gcross.20100117030121.2099:Functions
 -- @-others
 -- @-node:gcross.20091227115154.1326:@thin Moves.hs
 -- @-leo

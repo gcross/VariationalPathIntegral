@@ -273,19 +273,20 @@ main = defaultMain
                 -- @-others
                 ]
             -- @-node:gcross.20091227115154.1334:rigid
-            -- @+node:gcross.20100116114537.1619:brownian_bridge
+            -- @+node:gcross.20100116114537.2105:brownian_bridge
             ,testGroup "brownian_bridge"
                 -- @    @+others
-                -- @+node:gcross.20100116114537.1621:only selected particles and slices are moved
+                -- @+node:gcross.20100116114537.2106:only selected particles and slices are moved
                 [testProperty "only selected particles and slices are moved" $ do
-                    number_of_slices <- choose (2,10)
+                    number_of_slices <- choose (6,20)
                     number_of_particles <- choose (2,10)
                     number_of_dimensions <- choose (1,10)
                     particle_number <- choose (1,number_of_particles)
+                    endpoint_move_mode <- fmap toEnum (choose (0,2))
+                    center_slice_mode <- fmap toEnum (choose (0,2))
+                    center_slice_number <- choose (2,number_of_slices-2)
                     hbar_over_2m <- fmap ((+1e-10).abs) arbitrary
                     time_interval <- fmap ((+1e-10).abs) arbitrary
-                    move_leftmost_slice <- arbitrary
-                    move_rightmost_slice <- arbitrary
                     old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
                     let new_particle_positions =
                             unsafePerformIO $
@@ -293,8 +294,9 @@ main = defaultMain
                                     hbar_over_2m
                                     time_interval
                                     particle_number
-                                    move_leftmost_slice
-                                    move_rightmost_slice
+                                    endpoint_move_mode
+                                    center_slice_mode
+                                    center_slice_number
                                     old_particle_positions
                     return $
                         and [ new_particle_positions ! i3 i j k == old_particle_positions ! i3 i j k
@@ -309,7 +311,7 @@ main = defaultMain
                         , k <- [0..number_of_dimensions-1]
                         ]
                         &&
-                        if move_leftmost_slice
+                        if endpoint_move_mode == MoveLeftEndpoint
                             then
                                 and [ new_particle_positions ! i3 0 (particle_number-1) k /= old_particle_positions ! i3 0 (particle_number-1) k
                                 | k <- [0..number_of_dimensions-1]
@@ -319,71 +321,7 @@ main = defaultMain
                                 | k <- [0..number_of_dimensions-1]
                                 ]
                         &&
-                        if move_rightmost_slice
-                            then
-                                and [ new_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k /= old_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k
-                                | k <- [0..number_of_dimensions-1]
-                                ]
-                            else
-                                and [ new_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k == old_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k
-                                | k <- [0..number_of_dimensions-1]
-                                ]
-                -- @nonl
-                -- @-node:gcross.20100116114537.1621:only selected particles and slices are moved
-                -- @-others
-                ]
-            -- @-node:gcross.20100116114537.1619:brownian_bridge
-            -- @+node:gcross.20100116114537.2105:linked_brownian_bridge
-            ,testGroup "linked_brownian_bridge"
-                -- @    @+others
-                -- @+node:gcross.20100116114537.2106:only selected particles and slices are moved
-                [testProperty "only selected particles and slices are moved" $ do
-                    number_of_slices <- choose (6,20)
-                    number_of_particles <- choose (2,10)
-                    number_of_dimensions <- choose (1,10)
-                    link_slice_number <- choose (2,number_of_slices-2)
-                    particle_number <- choose (1,number_of_particles)
-                    duplicate_slice_number <- arbitrary
-                    hbar_over_2m <- fmap ((+1e-10).abs) arbitrary
-                    time_interval <- fmap ((+1e-10).abs) arbitrary
-                    move_leftmost_slice <- arbitrary
-                    move_rightmost_slice <- arbitrary
-                    old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
-                    let new_particle_positions =
-                            unsafePerformIO $
-                                linked_brownian_bridge
-                                    duplicate_slice_number
-                                    hbar_over_2m
-                                    time_interval
-                                    link_slice_number
-                                    particle_number
-                                    move_leftmost_slice
-                                    move_rightmost_slice
-                                    old_particle_positions
-                    return $
-                        and [ new_particle_positions ! i3 i j k == old_particle_positions ! i3 i j k
-                        | i <- [0..number_of_slices-1]
-                        , j <- [0..number_of_particles-1]
-                        , j /= (particle_number-1)
-                        , k <- [0..number_of_dimensions-1]
-                        ]
-                        &&
-                        and [ new_particle_positions ! i3 i (particle_number-1) k /= old_particle_positions ! i3 i (particle_number-1) k
-                        | i <- [1..number_of_slices-2]
-                        , k <- [0..number_of_dimensions-1]
-                        ]
-                        &&
-                        if move_leftmost_slice
-                            then
-                                and [ new_particle_positions ! i3 0 (particle_number-1) k /= old_particle_positions ! i3 0 (particle_number-1) k
-                                | k <- [0..number_of_dimensions-1]
-                                ]
-                            else
-                                and [ new_particle_positions ! i3 0 (particle_number-1) k == old_particle_positions ! i3 0 (particle_number-1) k
-                                | k <- [0..number_of_dimensions-1]
-                                ]
-                        &&
-                        if move_rightmost_slice
+                        if endpoint_move_mode == MoveRightEndpoint
                             then
                                 and [ new_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k /= old_particle_positions ! i3 (number_of_slices-1) (particle_number-1) k
                                 | k <- [0..number_of_dimensions-1]
@@ -394,42 +332,40 @@ main = defaultMain
                                 ]
                 -- @nonl
                 -- @-node:gcross.20100116114537.2106:only selected particles and slices are moved
-                -- @+node:gcross.20100116114537.2111:center link is duplicated
-                ,testProperty "center link is duplicated" $ do
-                    number_of_slices <- choose (6,10)
-                    number_of_particles <- choose (2,5)
-                    number_of_dimensions <- choose (1,5)
-                    link_slice_number <- choose (2,number_of_slices-2)
+                -- @+node:gcross.20100117030121.2103:center link is duplicated / not duplicated
+                ,testProperty "center link is duplicated / not duplicated" $ do
+                    number_of_slices <- choose (6,20)
+                    number_of_particles <- choose (2,10)
+                    number_of_dimensions <- choose (1,10)
                     particle_number <- choose (1,number_of_particles)
-                    duplicate_slice_number <- arbitrary
+                    endpoint_move_mode <- fmap toEnum (choose (0,2))
+                    center_slice_mode <- fmap toEnum (choose (1,2))
+                    center_slice_number <- choose (2,number_of_slices-2)
                     hbar_over_2m <- fmap ((+1e-10).abs) arbitrary
                     time_interval <- fmap ((+1e-10).abs) arbitrary
-                    move_leftmost_slice <- arbitrary
-                    move_rightmost_slice <- arbitrary
                     old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
                     let new_particle_positions =
                             unsafePerformIO $
-                                linked_brownian_bridge
-                                    duplicate_slice_number
+                                brownian_bridge
                                     hbar_over_2m
                                     time_interval
-                                    link_slice_number
                                     particle_number
-                                    move_leftmost_slice
-                                    move_rightmost_slice
+                                    endpoint_move_mode
+                                    center_slice_mode
+                                    center_slice_number
                                     old_particle_positions
                     return $
-                        if duplicate_slice_number
-                            then and [ new_particle_positions ! i3 (link_slice_number-1) (particle_number-1) k == new_particle_positions ! i3 link_slice_number (particle_number-1) k
+                        if center_slice_mode == DuplicatedCenterSlice
+                            then and [ new_particle_positions ! i3 (center_slice_number-1) (particle_number-1) k == new_particle_positions ! i3 center_slice_number (particle_number-1) k
                                      | k <- [0..number_of_dimensions-1]
                                      ]
-                            else and [ new_particle_positions ! i3 (link_slice_number-1) (particle_number-1) k /= new_particle_positions ! i3 link_slice_number (particle_number-1) k
+                            else and [ new_particle_positions ! i3 (center_slice_number-1) (particle_number-1) k /= new_particle_positions ! i3 center_slice_number (particle_number-1) k
                                      | k <- [0..number_of_dimensions-1]
-                                     ]
-                -- @-node:gcross.20100116114537.2111:center link is duplicated
+                                ]
+                -- @-node:gcross.20100117030121.2103:center link is duplicated / not duplicated
                 -- @-others
                 ]
-            -- @-node:gcross.20100116114537.2105:linked_brownian_bridge
+            -- @-node:gcross.20100116114537.2105:brownian_bridge
             -- @-others
             ]
         -- @-node:gcross.20091227115154.1331:vpif.path.moves

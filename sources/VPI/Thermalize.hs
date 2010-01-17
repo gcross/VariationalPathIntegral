@@ -39,12 +39,10 @@ thermalize
     computePotential
     computeGreensFunction
     computeTrialWeight
-    old_configuration@(Configuration path potential)
-   = do (start_slice,proposed_path) <- generateMove path
-        let proposed_configuration =
-                Configuration proposed_path (computePotential proposed_path)
-            end_slice = start_slice + pathLength proposed_path
-            current_configuration = subrange start_slice end_slice old_configuration
+    old_configuration@(Configuration old_path _)
+   = do (start_slice,proposed_path) <- generateMove old_path
+        let end_slice = start_slice + pathLength proposed_path
+            proposed_configuration = Configuration proposed_path (computePotential proposed_path)
 
             computePathWeight = liftA2 (+) computeFirstSliceWeight computeLastSliceWeight
               where
@@ -53,7 +51,7 @@ thermalize
                         then computeTrialWeight . firstSlice
                         else const 0
                 computeLastSliceWeight =
-                    if end_slice == pathLength path
+                    if end_slice == pathLength old_path
                         then computeTrialWeight . lastSlice
                         else const 0
 
@@ -65,7 +63,7 @@ thermalize
                     computePotentialWeight
 
         accept <- (decideWhetherToAcceptChange `on` computeConfigurationWeight)
-                    current_configuration
+                    (subrange start_slice end_slice old_configuration)
                     proposed_configuration
         return $
             if accept
