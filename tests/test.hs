@@ -253,7 +253,7 @@ main = defaultMain
                         ]
                 -- @-node:gcross.20091227115154.1336:moves stay within range
                 -- @+node:gcross.20100109140101.1475:uniform distribution
-                ,testDistribution "uniform distribution" id 10000 0.001 $ fmap ((0.5 -) . (! i3 0 0 0)) $ rigid 1 0.5 (fromListWithShape (shape3 1 1 1) [0])
+                ,testDistribution "uniform distribution" id 10000 0.001 $ fmap ((0.5 -) . (! i3 0 0 0)) $ rigid 0.5 1 (fromListWithShape (shape3 1 1 1) [0])
                 -- @-node:gcross.20100109140101.1475:uniform distribution
                 -- @-others
                 ]
