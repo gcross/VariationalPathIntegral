@@ -754,35 +754,8 @@ main = defaultMain
     -- @+node:gcross.20100111122429.1746:Spliceable
     ,testGroup "Spliceable"
         -- @    @+others
-        -- @+node:gcross.20100111122429.1750:updateArray
-        [testProperty "updateArray" $ do
-            array_length <- choose (4,20)
-            start_index <- choose (0,array_length-2)
-            end_index <- choose (start_index+1,array_length-1)
-            let update_length = end_index-start_index+1
-            old_array <- arbitraryNDArray (shape1 array_length) (arbitrary :: Gen Int)
-            updated_array <- arbitraryNDArray (shape1 update_length) arbitrary
-            let new_array = fst . unsafePerformIO $
-                    withNDArray old_array $ \p_old_array ->
-                    withNDArray updated_array $ \p_updated_array ->
-                    withNewNDArray (ndarrayShape old_array) $ \p_new_array ->
-                        updateArray array_length p_old_array update_length p_updated_array start_index p_new_array
-                correct_list =
-                    (if start_index > 0
-                        then toList . cut (Range 0 start_index :. ()) $ old_array
-                        else []
-                    )
-                    ++
-                    (toList updated_array)
-                    ++
-                    (if end_index < array_length-1
-                        then toList . cut (Range (end_index+1) array_length :. ()) $ old_array
-                        else []
-                    )
-            return $ (correct_list == toList new_array)
-        -- @-node:gcross.20100111122429.1750:updateArray
         -- @+node:gcross.20100111122429.2005:updateNDArray
-        ,testGroup "updateNDArray"
+        [testGroup "updateNDArray"
             -- @    @+others
             -- @+node:gcross.20100111122429.2002:Array1D
             [testProperty "Array1D" $ do
