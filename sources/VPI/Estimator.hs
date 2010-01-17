@@ -34,12 +34,13 @@ updateEstimator estimator observation =
 -- @-node:gcross.20100111215927.1538:updateEstimator
 -- @+node:gcross.20100111215927.1539:summarizeEstimator
 summarizeEstimator :: Estimator -> (Double,Double)
-summarizeEstimator estimator = (mean,variance)
+summarizeEstimator estimator = (mean,uncertainty_in_mean)
   where
     count = (fromIntegral . estimatorCount) estimator
     mean = ((/count) . estimatorSum) estimator
     mean_of_squares = ((/count) . estimatorSumOfSquares) estimator
     variance = mean_of_squares - mean*mean
+    uncertainty_in_mean = sqrt (variance / count)
 -- @-node:gcross.20100111215927.1539:summarizeEstimator
 -- @-node:gcross.20100111215927.1522:Functions
 -- @-others
