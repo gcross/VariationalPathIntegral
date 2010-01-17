@@ -51,18 +51,20 @@ initialize_weights number_of_slices  =
 -- @+node:gcross.20100106124611.2015:compute_log_greens_function
 foreign import ccall unsafe "vpic__greens_function__second_order__compute_log_greens_function" vpi__greens_function__second_order__compute_log_greens_function :: 
     Int -> -- number of slices
+    Double -> -- slice time interval
     Ptr (Double) -> -- weights
     Ptr (Double) -> -- potential
     IO Double
 
-compute_log_greens_function :: Array1D Double -> Array1D Double -> Double
-compute_log_greens_function weights potential =
+compute_log_greens_function :: Double -> Array1D Double -> Array1D Double -> Double
+compute_log_greens_function slice_time_interval weights potential =
     assert (shape1 number_of_slices == ndarrayShape potential)
     unsafePerformIO $
     withContiguousNDArray weights $ \p_weights ->
     withContiguousNDArray potential $ \p_potential ->
         vpi__greens_function__second_order__compute_log_greens_function
             number_of_slices
+            slice_time_interval
             p_weights
             p_potential
   where

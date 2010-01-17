@@ -20,9 +20,16 @@ subroutine initialize_weights(number_of_slices,weights)
 end subroutine
 !@-node:gcross.20100106124611.2001:initialize_weights
 !@+node:gcross.20100106124611.2002:compute_log_greens_function
-function compute_log_greens_function(number_of_slices,weights,potential) result (log_gfn)
+function compute_log_greens_function( &
+    number_of_slices, &
+    slice_time_interval, &
+    weights, potential &
+) result (log_gfn)
     integer, intent(in) :: number_of_slices
-    double precision, intent(in), dimension(number_of_slices) :: weights, potential
+    double precision, intent(in) :: &
+        slice_time_interval, &
+        weights(number_of_slices), &
+        potential(number_of_slices)
 
     double precision :: log_gfn
 
@@ -35,17 +42,20 @@ function compute_log_greens_function(number_of_slices,weights,potential) result 
         end function ddot
     end interface
 
-    log_gfn = ddot(number_of_slices,weights,1,potential,1)
+    log_gfn = -slice_time_interval * ddot(number_of_slices,weights,1,potential,1)
 
 end function
 !@-node:gcross.20100106124611.2002:compute_log_greens_function
 !@+node:gcross.20100106124611.2004:compute_log_greens_function_
-subroutine compute_log_greens_function_(number_of_slices,weights,potential,log_gfn)
+subroutine compute_log_greens_function_(number_of_slices,slice_time_interval,weights,potential,log_gfn)
     integer, intent(in) :: number_of_slices
-    double precision, intent(in), dimension(number_of_slices) :: weights, potential
+    double precision, intent(in) :: &
+        slice_time_interval, &
+        weights(number_of_slices), &
+        potential(number_of_slices)
     double precision, intent(out) :: log_gfn
 
-    log_gfn = compute_log_greens_function(number_of_slices,weights,potential)
+    log_gfn = compute_log_greens_function(number_of_slices,slice_time_interval,weights,potential)
 
 end subroutine
 !@-node:gcross.20100106124611.2004:compute_log_greens_function_

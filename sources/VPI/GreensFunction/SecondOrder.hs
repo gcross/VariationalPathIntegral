@@ -49,9 +49,9 @@ createWeights :: Int -> Weights
 createWeights = Weights . initialize_weights
 -- @-node:gcross.20100114153410.1585:createWeights
 -- @+node:gcross.20100114153410.1588:computeLogGreensFunction
-computeLogGreensFunction :: Weights -> Potential -> Double
-computeLogGreensFunction (Weights weights) (Potential potential) =
-    compute_log_greens_function weights potential
+computeLogGreensFunction :: Double -> Weights -> Potential -> Double
+computeLogGreensFunction slice_time_interval (Weights weights) (Potential potential) =
+    compute_log_greens_function slice_time_interval weights potential
 -- @-node:gcross.20100114153410.1588:computeLogGreensFunction
 -- @-node:gcross.20100114153410.1584:Functions
 -- @-others

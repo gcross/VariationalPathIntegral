@@ -146,8 +146,8 @@ main = defaultMain
                 -- @+node:gcross.20100106124611.2017:compute_log_greens_function
                 ,testProperty "compute_log_greens_function" $
                     liftA2 (~=)
-                        (sum . map (uncurry (*)))
-                        (uncurry compute_log_greens_function . (fromList *** fromList) . unzip)
+                        ((*(-1)) . sum . map (uncurry (*)))
+                        (uncurry (compute_log_greens_function 1) . (fromList *** fromList) . unzip)
                 -- @-node:gcross.20100106124611.2017:compute_log_greens_function
                 -- @-others
                 ]
