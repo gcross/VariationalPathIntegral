@@ -692,7 +692,7 @@ main = defaultMain
                             particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
                             potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                             (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                        return $ (0.5*coefficient) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                        return $ (0.5*sqrt coefficient) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                     -- @-node:gcross.20100105133218.1570:single particle, single dimension, random coefficient
                     -- @+node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
                     ,testProperty "single particle, multiple dimensions, random coefficients" $ do
@@ -702,7 +702,7 @@ main = defaultMain
                         let particle_positions_2darray = cut (Index 0 :. All :. All :. ()) particle_positions_3darray
                             potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                             (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
-                        return $ (0.5*N.sum coefficients) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
+                        return $ ((0.5*) . sum . map sqrt . toList $ coefficients) ~= (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                     -- @-node:gcross.20100105133218.1572:single particle, multiple dimension, random coefficients
                     -- @+node:gcross.20100105133218.1576:multiple particles, multiple dimension, random coefficients
                     ,testProperty "multiple particles, multiple dimensions, random coefficients" $ do
@@ -714,7 +714,7 @@ main = defaultMain
                             potential = compute_potential coefficients particle_positions_3darray ! (0 :. ())
                             (gradient_of_log_trial_fn,laplacian_of_log_trial_fn) = compute_trial_derivatives coefficients particle_positions_2darray
                         return $
-                            (0.5*(fromIntegral number_of_particles)*N.sum coefficients)
+                            ((fromIntegral number_of_particles *). (0.5 *) . sum . map sqrt . toList $ coefficients)
                             ~=
                             (compute_energy 0.5 potential gradient_of_log_trial_fn laplacian_of_log_trial_fn)
                     -- @-node:gcross.20100105133218.1576:multiple particles, multiple dimension, random coefficients

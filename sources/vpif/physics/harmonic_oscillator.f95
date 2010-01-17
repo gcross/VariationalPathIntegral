@@ -103,7 +103,7 @@ pure subroutine compute_trial_derivatives( &
     forall (i = 1:number_of_particles) &
         gradient_of_log_trial_fn(:,i) = -sqrt_trial_coefficients(:)*particle_positions(:,i)
 
-    laplacian_of_log_trial_fn = -sum(trial_coefficients)*number_of_particles
+    laplacian_of_log_trial_fn = -sum(sqrt_trial_coefficients)*number_of_particles
 
 end subroutine
 !@-node:gcross.20091212120817.1280:compute_trial_derivatives
