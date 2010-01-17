@@ -21,7 +21,7 @@ import VPI.Path
 -- @+node:gcross.20100114153410.1571:rigidMove
 rigidMove :: Double -> Int -> Path -> IO Path
 rigidMove maximum_shift particle_number (Path old_positions old_separations) =
-    rigid (particle_number+1) maximum_shift old_positions
+    rigid maximum_shift (particle_number+1) old_positions
     >>=
     \new_positions ->
         return $

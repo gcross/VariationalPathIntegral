@@ -223,7 +223,7 @@ main = defaultMain
                     particle_number <- choose (1,number_of_particles)
                     maximum_shift <- fmap ((+1e-10).abs) arbitrary
                     old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
-                    let new_particle_positions = unsafePerformIO $ rigid particle_number maximum_shift old_particle_positions
+                    let new_particle_positions = unsafePerformIO $ rigid maximum_shift particle_number old_particle_positions
                     return $
                         and [ new_particle_positions ! i3 i j k == old_particle_positions ! i3 i j k
                         | i <- [0..number_of_slices-1]
@@ -245,7 +245,7 @@ main = defaultMain
                     number_of_dimensions <- choose (1,10)
                     maximum_shift <- fmap abs arbitrary
                     old_particle_positions <- arbitraryNDArray (shape3 number_of_slices number_of_particles number_of_dimensions) (arbitrary :: Gen Double)
-                    let new_particle_positions = unsafePerformIO $ rigid particle_number maximum_shift old_particle_positions
+                    let new_particle_positions = unsafePerformIO $ rigid maximum_shift particle_number old_particle_positions
                     return $
                         and [ abs (new_particle_positions ! i3 i 0 k - old_particle_positions ! i3 i 0 k) <= 2*maximum_shift
                         | i <- [0..number_of_slices-1]
