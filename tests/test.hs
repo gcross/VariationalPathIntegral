@@ -361,11 +361,13 @@ main = defaultMain
                             in potentialOf distance == coefficient * distance**2 / 2
                     -- @-node:gcross.20091227115154.1361:1 particle, 1D
                     -- @+node:gcross.20091227115154.1364:1 particle, ND
-                    ,testProperty "1 particle, ND" $
-                        \(distances_and_coefficients :: [(Double,Double)]) ->
-                            let (distances,coefficients) = unzip distances_and_coefficients
-                            in  (== sum [distance**2 * coefficient / 2 | (distance,coefficient) <- distances_and_coefficients])
-                                .
+                    ,testProperty "1 particle, ND" $ do
+                        number_of_points <- choose (1,50)
+                        distances <- vectorOf number_of_points (choose (-1,1))
+                        coefficients <- vectorOf number_of_points (choose (0,1))
+                        return  .
+                                (~= sum [distance**2 * coefficient / 2 | (distance,coefficient) <- zip distances coefficients])
+                                . 
                                 fromSingleton
                                 .
                                 toList
