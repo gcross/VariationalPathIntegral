@@ -13,8 +13,14 @@ subroutine initialize_weights(number_of_slices,weights)
     integer, intent(in) :: number_of_slices
     double precision, intent(out) :: weights(number_of_slices)
 
+    integer :: link_slice_number
+
+    link_slice_number = number_of_slices / 2
+
     weights(1) = 0.5d0
-    weights(2:number_of_slices-1) = 1d0
+    weights(2:link_slice_number-1) = 1d0
+    weights(link_slice_number:link_slice_number+1) = 0.5d0
+    weights(link_slice_number+2:number_of_slices-1) = 1d0
     weights(number_of_slices) = 0.5d0
 
 end subroutine
